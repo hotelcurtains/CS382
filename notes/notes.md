@@ -93,4 +93,10 @@ data sizes for 64-bit systems:
   - if it's signed, 1110 1111 1100 = 0xEFC
   - there are no negative numbers in hex
 
+# 9/10 lab
+- c will translate decimal into binary for you when you assign a value to a variable
+- a string in a `char*`
+- output by `printf("Hello, %d\n", 382)` = `Hello, 382`
+- 
+
 # 9/11
