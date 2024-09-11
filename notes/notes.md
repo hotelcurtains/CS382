@@ -97,6 +97,83 @@ data sizes for 64-bit systems:
 - c will translate decimal into binary for you when you assign a value to a variable
 - a string in a `char*`
 - output by `printf("Hello, %d\n", 382)` = `Hello, 382`
-- 
+- compile your code with `gcc <some_file>.c -o <name_of_output>`
+- run it with `./<name_of_output>`
 
 # 9/11
+- carry - the truncated place(s) when unsigned binary addition make a number too big to fit into its size
+- positive/negative overflow - truncated place(s) when signed binary addition is too big/small for its size
+- byte-addressed memory - every byte in memory has a unique address
+  - each byte is between 0 and 2⁶⁴ - 1
+- an array's first element is at it's lowest address and then it grows upward
+  - the name of the array is a pointer to that first array, in 8 bytes (64-bti addressing)
+
+## C Data Types
+- char - one byte; the smallest one
+- short int - two bytes / half-word
+- int - 4 bytes / word
+- float 4 bytes / word
+- double - 8 bytes
+- long int - 16 bytes
+- by default they are all signed
+- no strings. use a char array
+  - `char str[] = "hello";`
+  - by default also contains the null terminator character -- completely invisible
+
+## data type signs
+- you can specify `unsigned int` etc.
+  - not for double or float
+- `unsigned char a = -5` will work, technically
+  - it will be interpreted as `a = 1111 1011` 
+  - which, when read back, will be interpreted as unsigned so `a = 251`
+- `for (unsigned int a = 10; a >= 0; a--){};` will never stop running because sn *unsigned* variable can never be < 0
+  - the binary will still wrap around from `00000000` to `11111111`, it just depends on how the computer interprets it
+
+## goto
+- `goto` lets us do *un*conditional branching
+  - can let us skip around blocks of code
+  - give some block of code a label, and whenever you want to use it, call `goto <label>`
+- thi 
+```c
+if (a<0){
+  S1;
+  S2;
+} else{
+  S3;
+  S4;
+}
+```
+- we can do:
+```c
+if (a>0) goto La;
+// we can get rid of the else condition; 
+// it won't reach this line unless "else" happens anyway
+goto Lb
+La: S1;
+S2;
+goto Lc
+Lb: S3:
+S4;
+Lc: ...
+```
+  - and this second snippet can be easily translated into assembly later
+- now if we have:
+```c
+for(int a=0; a<10; a++){
+  S1;
+  S2;
+}
+```
+- this can become:
+```c
+int a = 0;
+Loop: if (a>=10){
+  goto Out;
+}
+S1;
+S2;
+a++;
+goto Loop; 
+
+Out: ...
+```
