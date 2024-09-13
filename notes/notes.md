@@ -114,7 +114,7 @@ data sizes for 64-bit systems:
 - int - 4 bytes / word
 - float 4 bytes / word
 - double - 8 bytes
-- long int - 16 bytes
+- long int - 8 bytes
 - by default they are all signed
 - no strings. use a char array
   - `char str[] = "hello";`
@@ -133,7 +133,7 @@ data sizes for 64-bit systems:
 - `goto` lets us do *un*conditional branching
   - can let us skip around blocks of code
   - give some block of code a label, and whenever you want to use it, call `goto <label>`
-- thi 
+- given this:
 ```c
 if (a<0){
   S1;
@@ -156,7 +156,7 @@ Lb: S3:
 S4;
 Lc: ...
 ```
-  - and this second snippet can be easily translated into assembly later
+- and this second snippet can be easily translated into assembly later
 - now if we have:
 ```c
 for(int a=0; a<10; a++){
