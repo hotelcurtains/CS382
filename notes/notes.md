@@ -178,8 +178,44 @@ goto Loop;
 Out: ...
 ```
 
+# 9/13 Data Storage
+
+- byte-addressed = 1 byte per address ⇛ amount of unique addresses = amount of bytes that can be stored
+- 64-bit implies 2⁶⁴ unique addresses, = amounts of bytes we can store
+- range of addresses = [0, 2⁶⁴ - 1]
+- every char array used as a string has the amount of characters you give it plus the null terminator
+- `char str[]` --> type of `str` = char pointer, `char*`
+  - its value is the base address of the first element
+- arrays do not have a terminal character
+  - they take up only as much data as they contain
+- `int arr[]` --> type of `arr` = `int*` to the array's base address
+  - the array's next element is ALWAYS the next highest address
+- `&` gives you the address of a variable
+  - assuming `int arr[] = {10,20,30}` and starts at 0x0
+  - `&arr[0]` = 0x0 = `arr` = `arr+0`
+    - we get the lowest address, even though 10 takes up the first 4 bytes/addresses by being an int
+  - `&arr[1]` = 0x4 = `arr+1`
+  - `&arr[2]` = 0x8 = `arr+2`
+  - the interpreter knows to move `arr+1` 1 *element* up instead of one *address* up
+  - `arr + <n>` is an `int*` just like `arr` by itself
+- `*` dereferences a pointer
+  - i.e. gives you the value it points to instead of its address
+  - `*(arr+0)` = `arr[0]` = 10
+  - `*(arr+1)` = `arr[1]` = 20
+  - `*(arr+3)` = `arr[2]` = 30
+  - `*(arr + <n>)` gives us an int
+- we are now never using the good notation again because assembly doesn't have it
+- address of the nth element = base address + n * sizeof(data type)
+  - this is how `*(arr + <n>)` works
+  - if we really only want to move one byte at a time through `int a`, we can do `(char*)&a + <n bytes>`
+    - e.g. the third byte of `int a` stored at 0x1000 would be `(char*)&a + 2`
+    - can't add a fraction of a byte to only get part of the way into a variable
+  - since we casted it to a char pointer it returns *one* byte from the int
+  - if we tried `*((char*)&a + 2)` the machine wouldn't know where the boundary of the variable is
+  - `*((int*)((char*)&a + 2))` just grabs the 4 bytes after whatever the third byte of `a`
+
 ## endianness
 - endianness has to do with how multi-byte variables are stored
 - little endian: first (lowest) byte is at the lowest memory address
-- big endian : first (lowest) byte is at the highest memory address
+- big endian: first (lowest) byte is at the highest memory address
 - this DOES NOT EFFECT ARRAYS
