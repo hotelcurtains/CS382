@@ -177,3 +177,9 @@ goto Loop;
 
 Out: ...
 ```
+
+## endianness
+- endianness has to do with how multi-byte variables are stored
+- little endian: first (lowest) byte is at the lowest memory address
+- big endian : first (lowest) byte is at the highest memory address
+- this DOES NOT EFFECT ARRAYS
