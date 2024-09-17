@@ -233,3 +233,8 @@ Out: ...
 - this happens because the hardware has no concept of variables and boundaries. it just reads what it sees
 - assembly is the closest you can get to just manipulating hardware
 - languages like python don't even allow this, others will complain, C doesn't care
+
+# 9/17 lab
+- you can downcast with truncation
+- you can upcast but it will include garbage
+- 
