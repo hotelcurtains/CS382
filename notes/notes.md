@@ -205,17 +205,31 @@ Out: ...
   - `*(arr+3)` = `arr[2]` = 30
   - `*(arr + <n>)` gives us an int
 - we are now never using the good notation again because assembly doesn't have it
-- address of the nth element = base address + n * sizeof(data type)
+- address of the nth element = base address ± n * sizeof(data type)
   - this is how `*(arr + <n>)` works
   - if we really only want to move one byte at a time through `int a`, we can do `(char*)&a + <n bytes>`
     - e.g. the third byte of `int a` stored at 0x1000 would be `(char*)&a + 2`
     - can't add a fraction of a byte to only get part of the way into a variable
   - since we casted it to a char pointer it returns *one* byte from the int
   - if we tried `*((char*)&a + 2)` the machine wouldn't know where the boundary of the variable is
-  - `*((int*)((char*)&a + 2))` just grabs the 4 bytes after whatever the third byte of `a`
+  - `*((int*)((char*)&a + 2))` just grabs the 4 bytes after the third byte of `a`
+  - n * sizeof(data type) = *byte offset*
 
 ## endianness
 - endianness has to do with how multi-byte variables are stored
 - little endian: first (lowest) byte is at the lowest memory address
+  - when splitting up one value into multiple addresses, it is stored from least significant byte to most significant byte
 - big endian: first (lowest) byte is at the highest memory address
 - this DOES NOT EFFECT ARRAYS
+- we are going to assume little endianness if not specified
+![endianness examples](image-1.png)
+
+## 9/16 Data Storage Cont.
+- when you declare a variable with hexadecimal, it's exactly what is stored. 
+  - no sign extension happens. 
+  - empty bits are filled with 0s
+- more pointer arithmetic examples:
+  ![](image-2.png)
+- this happens because the hardware has no concept of variables and boundaries. it just reads what it sees
+- assembly is the closest you can get to just manipulating hardware
+- languages like python don't even allow this, others will complain, C doesn't care

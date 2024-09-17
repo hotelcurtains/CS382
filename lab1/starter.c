@@ -3,7 +3,7 @@
  * Authors    : Daniel Detore, Elliott McKelvey
  * Version    : 1.0
  * Date       : September 10, 2024
- * Description: A program that prints out the binary pattern of any 32-bit integer numbers.
+ * Description: A program that prints out the binary pattern of any 32-bit integer number.
  * Pledge     : I pledge my honor that I have abided by the Stevens Honor System.
  ******************************************************************************/
 
