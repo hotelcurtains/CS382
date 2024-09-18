@@ -1,5 +1,7 @@
 1-time 3-day extension, no questions asked. submit the form on canvas at least a few horus before the deadline.
 
+(class notes)[https://stevens0-my.sharepoint.com/:o:/g/personal/shao14_stevens_edu/EusjhIxWjCBNg3XbnfM_uoUBdCeVBiEvmpQzYifPEVDy6A?e=X4YIWA]
+
 data sizes for 64-bit systems:
 
 ![common data sizes for 64-bit systems](image.png)
@@ -167,12 +169,13 @@ for(int a=0; a<10; a++){
 - this can become:
 ```c
 int a = 0;
-Loop: if (a>=10){
-  goto Out;
-}
-S1;
-S2;
-a++;
+Loop: 
+  if (a>=10){
+    goto Out;
+  }
+  S1;
+  S2;
+  a++;
 goto Loop; 
 
 Out: ...
@@ -237,4 +240,45 @@ Out: ...
 # 9/17 lab
 - you can downcast with truncation
 - you can upcast but it will include garbage
-- 
+
+# 9/18 von Neumann
+- we can attach as many I/O devices as we want
+  - hard drive is an I/O device
+  - keyboard, mouse, trackpad, etc are all peripheral devices
+    - peripheral b.c. the computer can run without them
+  - the RAM and CPU are the essential parts that the computer needs to have
+    - otherwise it's not really a computer
+- each wire can carry high/low voltage ⇛ 0/1
+  - a bus = a big group of wires put together
+- the RAM or I/O devices send signals with instructions tot eh CPU over the control bus
+- to do 3+2:
+  - I/O device reads "3+2"
+  - RAM gets "3" "2" and the instruction to add them
+  - RAM send "3" and "2" to the register file in the CPU
+  - RAM sends addition instruction over control bus to control unit in the CPU
+  - ALU (algorithmic logic unit) in the CPU takes 3, 2 and control unit tells it to add them
+  - ALU does the addition and produces 5
+  - ALU sends 5 to the register file
+  - calculation is done
+- but now we want to save it...
+  - register file sends 5 to RAM over data bus
+  - RAM picks a memory address and stores 5 there
+- ALU needs to send 5 to the register file before it gets to RAM because it has no direct connection to the RAM
+- data bus is bidirectional -- it can send data both ways
+- each operation/movement takes one tick of the CPU clock
+  - and each operation is one assembly instruction
+- data in the CPU is not addressed
+  - Data are stored in registers in CPU, and registers use names to refer to, not address.
+- data in the RAM is byte-addressed
+  - RAM does not store data types or anything of the like -- it is only values or machine code
+
+## intro to assembly
+- assembly programs tend to be much longer than higher-level ones
+- when we run a C language program:
+  - C → compiler → assembly → link → executable binary
+  - the compiler automatically turns C into assembly but we'll do it manually
+- can compile with `gcc hello.c -S` to get an assembly file
+
+
+
+- it is easy to see if the compiler or human wrote the assembly because the compiler adds a bunch of extra stuff
