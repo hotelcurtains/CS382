@@ -234,6 +234,14 @@ Out: ...
 - assembly is the closest you can get to just manipulating hardware
 - languages like python don't even allow this, others will complain, C doesn't care
 
+```c++
+int main(void){
+    int a = 3+2;
+}
+```
+becomes:
+![alt text](image-3.png)
+
 # 9/17 lab
 - you can downcast with truncation
 - you can upcast but it will include garbage
