@@ -1,6 +1,6 @@
 1-time 3-day extension, no questions asked. submit the form on canvas at least a few horus before the deadline.
 
-(class notes)[https://stevens0-my.sharepoint.com/:o:/g/personal/shao14_stevens_edu/EusjhIxWjCBNg3XbnfM_uoUBdCeVBiEvmpQzYifPEVDy6A?e=X4YIWA]
+[class notes](https://stevens0-my.sharepoint.com/:o:/g/personal/shao14_stevens_edu/EusjhIxWjCBNg3XbnfM_uoUBdCeVBiEvmpQzYifPEVDy6A?e=X4YIWA)
 
 data sizes for 64-bit systems:
 
@@ -237,14 +237,6 @@ Out: ...
 - assembly is the closest you can get to just manipulating hardware
 - languages like python don't even allow this, others will complain, C doesn't care
 
-```c++
-int main(void){
-    int a = 3+2;
-}
-```
-becomes:
-![alt text](image-3.png)
-
 # 9/17 lab
 - you can downcast with truncation
 - you can upcast but it will include garbage
@@ -286,7 +278,65 @@ becomes:
   - C → compiler → assembly → link → executable binary
   - the compiler automatically turns C into assembly but we'll do it manually
 - can compile with `gcc hello.c -S` to get an assembly file
+- e.g. 
+  ```c++
+  int main(void){
+      int a = 3+2;
+  }
+  ```
+  becomes:<br><img src="image-3.png" width="400px"/>
 
+- it's easy to see if the compiler or human wrote the assembly because the compiler writes very differently
 
+# 9/20
+- register file store immediate results of calculations
+- ARM64 machines have 32 registers (X0-X31)
+  - though X/W31 are special zero registers
+- looks like this
+![register file diagram](image-4.png)
+- X9 + X10 means we're adding the data from X9 and X10 together
+- the lower half of each registry entry is a word (W register)
+  - old 32x cpus only has W for words; newer 64x cpus eXtend these to 64 bits
+- the *entire thing* is an X register, the lower half included
+- register names should be operands
+- mnemonic for addition = ADD
+- assembly format:
+  - (Label:) mnemonic op1, op2, op3, ... //comment
+  - we will need to comment every single line
+- there are registers WZR and XZR that juts contain zeros.
+  - used to clear out a register with MOV
+  - you can do `MOV XZR, 382` but it doesn't do anything because XZR will return to 0 anyway
+  - these are shortcuts to W31 and X31
+  
+## MOV
+- not case-sensitive
+- Syntax: `MOV Xn, simm64` or `MOV Wn simm32`
+  - s = signed
+  - imm = immediate number
+  - 64/32 = amount of bits
+  - MOVing a 32-bit number to `Wk` will zero out the higher digits of `Xk`
+- keep a diagram of registers and values
+- e.g. ![the result of two MOV operations](image-5.png)
+- `MOV Xdst, Xsrc` or `MOV Wdst, Wsrc` will copy data from one register to another
+  - both need be be the same of X/W
+- `MOV 382, X20` is invalid because you cannot move a register into a number
+  - you might have meant `MOV X20, 382` to put 382 into X20
+- `MOV 382, 389` is invalid because you can't put a number in a number
+- can only MOV things within the register file
+  - most data is stored in RAM
+  - we need to move it to/from RAM and CPU
+  
+## LDR
+- LDR = load register
+- CPU needs to send the needed address to the RAM and to retrieve the data
+- Syntax: `LDR Wt/Xt [base,simm9]` loads a word/double word from memory addressed by base+simm9 to Wt/Xt;
+  - Wt/Xt is the destination
+  - brackets mean you want accessible memory
+  - base = base address
+    - must be an X register bc addresses are 64 bits long
+  - simm9 = byte offset in 9 bits
+    - offsets you into the data at the address
+  - can load a W into an X / X into a W
+    - zeros out top half
+- Syntax: `LDR Wt/Xt, [Xn,Xm]` loads a word/double work from memory address Xn+Xm
 
-- it is easy to see if the compiler or human wrote the assembly because the compiler adds a bunch of extra stuff
