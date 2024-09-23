@@ -334,9 +334,68 @@ Out: ...
   - brackets mean you want accessible memory
   - base = base address
     - must be an X register bc addresses are 64 bits long
-  - simm9 = byte offset in 9 bits
+  - simm9 = *byte* offset in 9 bits
     - offsets you into the data at the address
   - can load a W into an X / X into a W
     - zeros out top half
-- Syntax: `LDR Wt/Xt, [Xn,Xm]` loads a word/double work from memory address Xn+Xm
+- Syntax: `LDR Wt/Xt, [Xn,Xm]` 
+  - loads a word/double word to Wt/Xt (respectively) from memory address Xn+Xm
+- Extended syntax: `LDR[S]{H|B} Wt, [base, simm9]`
+  - S: use sign extention (optional)
+    - i.e. duplicates most significant *bit* (not leading hex digit)
+    - uses zero extension otherwise
+    - necessary to think about because a half word/byte will not fill the W register (4 bytes)
+  - H: load a half word/nibble, B: load a byte (optional)
+  - has to load to a W register
+  - examples: ![examples of the extended syntax of LDR](image-6.png)
+  
+# Assembly Programs
+![basic assembly program](GetImage.png)
+- this program doesn't actually print anything, it just ends itself
+  - these 3 lines are used to end the program
+- assembly programs have text and data segments
+  - `.text` segment contains code, instructions to be carried out
+  - `.data` segment declares data
+  - can be in any order as long as they are separate
+- `_start:` is a **label** like for goto and is equivalent to a `main` function
+- variable names are also labels; `hello_str: .ascii "Hello World!\n\0"`
+- under `.text` we need `.global _start` to tell to OS where to start running the program
+- all of these `.name` lines are **directives**
+  - they are not code
+  - like a `#include <xyz>` in C++, it is for the compiler, not the final executable
 
+## .text
+- `MOV X0, 0` tells the system that status is normal
+  - OS checks X0 for the status of the program upon exit
+- `MOV X8, 93` is saving the number to call a system service, here it's 93 which is terminating the program normally
+- `SVC 0` actually calls for the system service, using the number in register X8
+  - it's always X8
+
+## .data
+- `hello_str: .ascii "Hello World!"`
+- Declaring a variable syntax: `label: .type_directive data1, data2, ...`
+  - label is any valid label
+    - will point to the base address of the data assigned
+  - .type_directive: ![options for type directives](image-7.png)
+    - tells us how much space each piece of data takes
+  - data1, data2, ...: data
+    - ascii must be declared `"Content\0"`, including the null terminator
+    - strings can be declared as `"usual"`
+      - the label of the string points to the location of `"u"`
+    - arrays are declared with type and no delimiters, e.g. `arr: .quad 80302, 01230, 07030` 
+      - `arr` points to the location of element 0, `80302`
+- all data declared in the `.data` segment are stored sequentially
+  ```assembly
+  str: .string "Hello"
+  arr: .quad 80302, 01230, 07030
+  vec: .int -100
+  ```
+  - for example, `str + 5` = `arr` = `80302`
+
+# ADR
+- gets the data from an address into a register
+- Syntax: `ADR dst, label`
+  - `ADR X9, arr` loads the address of arr into X9
+- `LDR X10, [X9]` then loads the *content* of `arr[0]` into X10
+- `LDR X10, [X9, 8]` loads `arr[1]` into X10
+  - 8 = byte offset between quads, which arr is made of
