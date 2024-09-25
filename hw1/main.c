@@ -3,8 +3,8 @@
 /*
    Daniel Detore
    I pledge my honor that I have abided by the Stevens Honor System.
-   State the sorting algorithm you chose in task 3
-   State if you want to be considered for bonus points in task 3
+   Counting sort
+   I want to be considered for bonus points in part 3
 */
 
 void copy_str(char* src, char* dst) {
