@@ -17,6 +17,7 @@ void copy_str(char* src, char* dst) {
         i++;
         // continue iterating through the strings until we reach the null terminator
         if (*(src + i) != '\0') goto loop;
+        *(dst + i) = '\0';
 }
 
 int dot_prod(char* vec_a, char* vec_b, int length, int size_elem) {
@@ -38,7 +39,9 @@ int dot_prod(char* vec_a, char* vec_b, int length, int size_elem) {
 }
 
 void sort_nib(int* arr, int length) {
-    char nibarr[length*8+1];
+    // amount of nibs we're working with
+    int nnibs = length * 8;
+    unsigned char nibarr[length * 8];
     unsigned int mask = 0x00000000;
 
     // iterates through arr items
@@ -55,14 +58,67 @@ void sort_nib(int* arr, int length) {
             i--;
         if (i >= 0) goto iloop;
         k++;
-    if (k < length*8) goto kloop;
+    if (k < length) goto kloop;
 
-    // let's do counting sort (Theta(n), optimal for lots of values with small range)
+    // let's do counting sort 
+    // here it's Theta(n) and it's optimal for lots of values with small range (e.g. 0-15)
 
-    // TODO
+    // the largest nibble possible is 0xF = (15)2 so we know the size = (16)2
+    // and we can set all counts to zero sinze we haven't counted yet
+    int count[16] = {0};
+
+    // do the actual counting of counting sort
+    i = 0; //iterates through nibarr
+    counting:
+        count[nibarr[i]]++;
+        i++;
+        if (i < nnibs) goto counting;
+
+    // replace each element with its cumulative sum
+    i = 1; //iterates through count
+    cumsum:
+        count[i] += count[i - 1];
+        i++;
+        if (i < 16) goto cumsum;
+
+    // ready output array
+    unsigned char output[nnibs];
+    i = 0; //iterates through output
+    initoutput:
+        output[i] = 0;
+        i++;
+        if (i<nnibs) goto initoutput;
+
+    // move elements to output
+    i = length*8-1; //iterates backwards through nibarr
+    moveout:
+        output[count[nibarr[i]] - 1] = nibarr[i];
+        count[nibarr[i]]--;
+        i--;
+        if (i >= 0) goto moveout;
     
 
-    
+    // output now contains all of the nibbles in ascending order!
+    // let's turn them back into ints
+
+
+    // reset arr to all 0s
+    i = 0; //iterates through arr
+    zeroarr:
+        arr[i] = 0;
+        i++;
+        if (i<length) goto zeroarr;
+
+    k = 0; // iterates through arr items
+    kloop2:
+        // i iterates from 0 to seven to move from the most to least significant hex digit
+        i = 0; // iterates through 8 nibbles in output
+        iloop2:
+            arr[k] = (arr[k] << 4) + output[(k*8) + i];
+            i++;
+        if (i < 8) goto iloop2;
+        k++;
+    if (k < length) goto kloop2;
 }
 
 
@@ -116,6 +172,7 @@ int main(int argc, char** argv) {
         printf("0x%x ", arr[i]);
     }
     puts(" ");
+
 
     return 0;
 }
