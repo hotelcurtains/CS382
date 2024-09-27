@@ -385,7 +385,7 @@ Out: ...
     - arrays are declared with type and no delimiters, e.g. `arr: .quad 80302, 01230, 07030` 
       - `arr` points to the location of element 0, `80302`
 - all data declared in the `.data` segment are stored sequentially
-  ```assembly
+  ```as
   str: .string "Hello"
   arr: .quad 80302, 01230, 07030
   vec: .int -100
@@ -399,3 +399,141 @@ Out: ...
 - `LDR X10, [X9]` then loads the *content* of `arr[0]` into X10
 - `LDR X10, [X9, 8]` loads `arr[1]` into X10
   - 8 = byte offset between quads, which arr is made of
+
+# STR
+![STR syntaxes](image-8.png)
+- lets you store something from the CPU into RAM
+
+# Calculating
+- Addition: ADD
+  - Syntax: `ADD Xd, Xn, Xm`
+  - stores the result of Xn + Xm into Xd
+  - *one* of Xn and Xm can be an immediate
+- Subtraction: SUB, and Multiply, MUL have the same syntax
+- SDIV, UDIV for signed and unsigned division operations
+- LSL (logical shift left)
+- LSR (logical shift right)
+- ASR (arithmetic shift right)
+- AND (logical AND)
+- ORR (logical OR)
+- EOR (logical XOR)
+
+# Branching (Flow Control)
+- unconditional branching with B = goto
+  ```as
+  MOV ...
+  ADD ...
+  B L1
+  SUB ... //this line never runs
+  L1: LDR ...
+  ```
+- let's say we start with:
+  ```c
+  long int a;
+  if (a==4) a++;
+  else a--;
+  ```
+- we can rewrite it with `goto`:
+  ```c
+  long int a;
+  if (a==4) goto L1;
+  else goto L2;
+
+  L1: a++;
+      goto end;
+  L2: a--
+
+  end: ...
+  ```
+- we can rewrite `if (a==4)` as `if (a-4==0)` arithmetically
+- Syntax: `CBZ Xt, Label`
+  - if the content of Xt **==** 0, goto Label; else move to the next instruction.
+- Syntax: `CBNZ Xt, Label`
+  - if the content of Xt **!=** 0, goto Label; else move to the next instruction.
+- these let us translate that original C++ code into:
+```as
+// we have loaded long int a into X9
+    SUB X10, X9, 4 // X10 = a-4
+    CBZ X10, L1    // if X10 == 0 goto L1
+    B   L2         // else goto L2
+
+L1: ADD X9, X9, 1  // a++
+    B   End
+L2: SUB X9, X9, 1  // a--
+End:
+```
+
+## Translating For loops
+```c++
+for (int i = 0; i < 5; i++){}
+```
+is the same as
+``` c++
+int i = 0;
+loop: 
+if (i<5){
+  i++;
+  goto loop;
+}
+```
+is the same as
+```c++
+int i = 0;
+loop: 
+  if (i==5) goto End;
+  i++
+  goto loop
+End:
+```
+which can be turned into assembly line-by-line:
+```as
+MOV X0, 0       // X0: int i = 0
+SUB X1, X0, X5  // X1 = i-5
+Loop:
+CBZ X1, End     // if (i-5 == 0) goto End;
+ADD X0, X0, 1   // i++
+B   Loop        // goto Loop
+End:
+...
+```
+
+## 
+- null terminator's ascii value is 0
+- lowercase letters are stored immediately uppercase
+  - add 32 to an uppercase letter to get its lowercase equivalent
+  - and subtract for vice versa
+
+```as
+.data
+  msg: .string "hello" // we want this to become "HELLO"
+.text
+.global _start
+_start:
+  MOV  X0, 0          // X0 index/byte offset
+  ADR  X1, msg        // X1: base
+
+Loop:
+  LDRB W2, [X1, X0]   // W2 ← msg[i]
+  CBZ  X2, End        // if (X2 == 0) goto End;
+  SUB  W2, W2, 32     // W2 ← W2 - 32
+  STRB W2, [X1, X0]   // msg[i] ← W2
+  ADD  X0, X0, 1       // i++
+  B Loop              // goto loop
+End:
+...
+```
+
+# Machine Code
+- each instruction is a 4-byte binary
+- the instructions are loaded into RAM
+  - which means each instruction has an address
+  - loaded in sequentially
+- we know the code starts at label `_start`
+- PC = program counter
+  - has as 64-bit register
+  - stores the address of the next instruction
+1. cpu retrieves the address of the first instruction from the PC
+2. pc retrieves the 4 bytes of instruction
+3. pc loads the next instruction into the CPU
+4. pc increments its counter by 4 bytes
+   1. unless it reaches a CBZ where it might go directly to a labeled instruction's byte
