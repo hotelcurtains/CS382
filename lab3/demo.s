@@ -18,8 +18,8 @@ LDR X12, [X11]   // load *value* of len into X12
 
 // write(msg)
 MOV X0, 1       // set status to 1, as we are about to print
-MOV X1, X9     // MOV string from X10 to X1
-MOV X2, X12     // Length of string we are going to print (= 13)
+MOV X1, X9      // MOV string from X10 to X1
+MOV X2, X12     // Length of string we are going to print (= 14)
 MOV X8, 64      // set up system call #64 for write()
 SVC 0           // call the write() service
 
