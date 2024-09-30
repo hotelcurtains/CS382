@@ -537,3 +537,36 @@ End:
 3. pc loads the next instruction into the CPU
 4. pc increments its counter by 4 bytes
    1. unless it reaches a CBZ where it might go directly to a labeled instruction's byte
+
+# 9/30 Branching
+## CPSR, Current Program Status Register
+- has 32 bits but we only care about the 4 MSBs right now
+  - 31 = N = Negative
+    - 1 iff result from last operation is negative, else 0
+    - AKA copy of the result's MSB
+  - 30 = Z = Zero
+    - 1 iff result from last operation is 0, else 0
+  - 29 = C = Carry
+    - 1 iff result from last operation is greater than the limit of the data type, else 0
+    - AKA the extra bit we need to carry out of the result
+  - 28 = V = Overflow
+    - 1 iff result from last operation is too large to fit in a signed bit, else 0
+    - will never get an overflow when adding a positive and negative together
+- `ADDS` will set condition codes for its results, `ADD` doesn't
+  - same deal for `SUBS` vs `SUB` and `ANDS` vs `AND`.
+
+## CMP
+- Syntax: `CMP Xn, Xm` or `CMP Wn, Wm`
+- or with immediates, `CMP Wn/Xn imm12`
+- subtracts the second argument from the first, then set all condition codes in the CPSR about the result
+- effectively does the same thing as `SUBS`, but `CMP` doesn't store the result of the multiplication into a register, while `SUBS` does
+
+## B.cond
+- Syntax: `B<.cond> Label`
+  - `B` always jumps to Label
+  - `B.cond` jumps iff its condition is fulfilled, otherwise nothing.
+    - i.e. calls with conditions that are unfulfilled are skipped over
+- comparisons and their equivalent B operations:
+![chart of comparisons and their equivalent in B operations](image-9.png)
+  - **notice that most commands are different for different signedness**
+- 
