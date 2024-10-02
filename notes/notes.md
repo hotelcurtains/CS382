@@ -569,4 +569,28 @@ End:
 - comparisons and their equivalent B operations:
 ![chart of comparisons and their equivalent in B operations](image-9.png)
   - **notice that most commands are different for different signedness**
-- 
+
+# 10/2 Process Image
+- shows the addresses in memory a program takes
+  ![process image](image-10.png)
+  - unused is unused
+  - `.text`, `.data`, and `.bss` parts are the assembly code
+  - heap stores anything that gets created during runtime
+    - like anything declared with `new`
+    - ie.. stores dynamic data
+      - assembly parts store static global data
+  - stack stores procedure calls and local variables
+    - anything added to the stack grows down into the empty space
+    - outermost function call is at the bottom, innermost is at the top (gets finished first)
+    - SP register X29 points to the top (physically bottom) of the stack 
+      - can add and subtract X29's value to move up/down the stack
+- assembler (compiler) turns asm code into object file (made of machine code/binary)
+  - object has `.text` and `.data` but it's in binary
+- we can link object files with a linker
+  - merges all of the `.text` and `.data` into one big executable
+- text editors will try to translate the binary into ASCII characters, and sometimes those characters don't exist
+  - if we want to see the actual binary
+  - generate listing file by `aarch64-linux-gnu-as demo.s -a=demo.lst`
+  - then `cat demo.lst` will show assembly and machine code side-by-side
+  - ![listing example](image-11.png)
+    - notice the hex values next to the declaration of `"Hello World!\n"` are all of the ASCII codes for each character (plus `\0` = `0x00` at the end)
