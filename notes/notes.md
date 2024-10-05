@@ -582,8 +582,9 @@ End:
   - stack stores procedure calls and local variables
     - anything added to the stack grows down into the empty space
     - outermost function call is at the bottom, innermost is at the top (gets finished first)
-    - SP register X29 points to the top (physically bottom) of the stack 
+    - SP register X29 points to the top of the stack 
       - can add and subtract X29's value to move up/down the stack
+      - it's not actually at X29, but X29 will redirect you to it
 - assembler (compiler) turns asm code into object file (made of machine code/binary)
   - object has `.text` and `.data` but it's in binary
 - we can link object files with a linker
@@ -594,3 +595,23 @@ End:
   - then `cat demo.lst` will show assembly and machine code side-by-side
   - ![listing example](image-11.png)
     - notice the hex values next to the declaration of `"Hello World!\n"` are all of the ASCII codes for each character (plus `\0` = `0x00` at the end)
+
+## 10/4 Procedures
+- leaf procedure does not call any other procedures
+- we can think of calling a procedure (a function) as branching to its code and then branching back
+  ![alt text](image-12.png)
+  - this is limited in that it will always return back to A1, even if you call it later and you want it to return somewhere else
+  - we need a dynamic return point
+- recall every instruction has an address, and the program counter stores what instruction to go to next
+  - the address of the calling point will be in PC when you go to the procedure
+  - the expected address of the return point is that value +4
+- New instruction BL = branch and link
+  - stores the return address (PC+4) into a special register X30 (aka LR, linked register)
+  - THEN branches like normal (sets PC to target address)
+  - Syntax: `BL label`
+- at the end of your procedure you just do `RET`
+  - copies X30 into PC
+- between a `BL` and its `RET` instruction, **you should not touch X30.**
+- if we call another function from inside this procedure, X30 will be overwritten...
+  - so we store the old return address in the stack and come back to it later
+  - this is how it works anyway, btu now we have to do it manually
