@@ -385,7 +385,7 @@ Out: ...
     - arrays are declared with type and no delimiters, e.g. `arr: .quad 80302, 01230, 07030` 
       - `arr` points to the location of element 0, `80302`
 - all data declared in the `.data` segment are stored sequentially
-  ```as
+  ```arm
   str: .string "Hello"
   arr: .quad 80302, 01230, 07030
   vec: .int -100
@@ -420,7 +420,7 @@ Out: ...
 
 # Branching (Flow Control)
 - unconditional branching with B = goto
-  ```as
+  ```arm
   MOV ...
   ADD ...
   B L1
@@ -451,7 +451,7 @@ Out: ...
 - Syntax: `CBNZ Xt, Label`
   - if the content of Xt **!=** 0, goto Label; else move to the next instruction.
 - these let us translate that original C++ code into:
-```as
+```arm
 // we have loaded long int a into X9
     SUB X10, X9, 4 // X10 = a-4
     CBZ X10, L1    // if X10 == 0 goto L1
@@ -486,7 +486,7 @@ loop:
 End:
 ```
 which can be turned into assembly line-by-line:
-```as
+```arm
 MOV X0, 0       // X0: int i = 0
 SUB X1, X0, X5  // X1 = i-5
 Loop:
@@ -503,7 +503,7 @@ End:
   - add 32 to an uppercase letter to get its lowercase equivalent
   - and subtract for vice versa
 
-```as
+```arm
 .data
   msg: .string "hello" // we want this to become "HELLO"
 .text
@@ -615,3 +615,61 @@ End:
 - if we call another function from inside this procedure, X30 will be overwritten...
   - so we store the old return address in the stack and come back to it later
   - this is how it works anyway, btu now we have to do it manually
+
+# 10/7 Non-leaf Procedures
+- leaf procedures: returns and calls not other procedures
+- non-leaf procedures: calls other procedures
+```c++
+void fun2() { 
+  return; 
+} 
+void fun1() { 
+  fun2(); 
+  return; 
+} 
+int main() { 
+  fun1();
+}
+```
+
+```arm
+fun2:
+RET       // 0x1000, returns to 0x1008
+
+fun1: 
+BL fun2   // 0x1004, overwrites PC to 0x1008
+RET       // 0x1008, returns to 0x1008
+
+_start: 
+BL fun1   // 0x100C, sets PC to 0x1010
+MOV X0, 0 // 0x1010
+// etc
+```
+  - the PC gets stuck at 0x1008 -- the return address 0x100C is overwritten and unrecoverable.
+- approach 1: save old return addresses to registers
+  - ok for really small programs, but we run out of registers pretty quickly
+- moving something out of the stack does not destroy it
+- though it will be overwritten when the stack moves back up
+- approach 2:
+```arm
+// only showing non-lead procedure
+fun1:
+SUB SP, SP, 8     // allocate stack space
+STR X30, [SP, 0]  // save X30
+BL sun2
+LDR X30, [SP, 0] // restore X30
+ADD SP, SP, 8    // de-allocate stack space
+RET
+```
+
+## printf()
+- we know `printf("hello %d%x", num, num2)`
+  - first parameter: **address** of the string → X0
+  - **values** of other parameters → X1, X2, ...
+- we call it by `BL printf`
+- we never write the printf code, but the assembler won't complain because that's not its job
+  - it's not a compiler/linter
+- the linker will complain `undefined reference to printf`
+  - it will try to make executable code for printf but it can't find any
+- resolve by linking with `-lc` flag, which includes printf
+- when executing you need to add `-L /usr/aarch64-linux-gnu ...`
