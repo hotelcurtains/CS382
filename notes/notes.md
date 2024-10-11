@@ -652,7 +652,7 @@ MOV X0, 0 // 0x1010
 - though it will be overwritten when the stack moves back up
 - approach 2:
 ```arm
-// only showing non-lead procedure
+// only showing non-leaf procedure
 fun1:
 SUB SP, SP, 8     // allocate stack space
 STR X30, [SP, 0]  // save X30
@@ -673,3 +673,161 @@ RET
   - it will try to make executable code for printf but it can't find any
 - resolve by linking with `-lc` flag, which includes printf
 - when executing you need to add `-L /usr/aarch64-linux-gnu ...`
+
+# 10/9 Procedure Practice
+- we need to translate this into assembly:
+  ```c
+  long int cat(long int purr){
+    return purr + dog() + bunny();
+  }
+  ```
+  - purr is local, not a global variable, so it will be stored in X0 by convention
+    - if there were more, they'd be stored on X0-X7 sequentially
+  - to call `dog()` we might want to simply `BL dog`
+    - BUT, becuase of convention, it will put its output in X0 and overwrite our value of `purr`
+    - so we'll store `purr` in X1 and *then* `BL dog`
+  - then we have to move dog before we can `BL bunny`
+  ```arm
+  cat:
+  // we can call these two lines the prologue
+  SUB SP, SP, 8 
+  STR X30, [SP]
+
+  MOV X1, X0      // X1 = purr
+  BL dog          // X0 = dog()
+  MOV X2, X0      // X2 = dog()
+  BL bunny        // X0 = bunny()
+
+  ADD X0, X0, X1  // X0 = bunny() + purr
+  ADD X0, X0, X2  // X0 = bunny() + purr + dog()
+
+  // we can call this all the epilogue
+  LDR X30, [SP]    
+  ADD SP, SP, 8
+  RET
+  ```
+- now this
+  ```c
+  long int cat(long int x, long int y){
+    if (x < y) return dog();
+    else return bunny();
+  }
+  ```
+  - we need to use signed comparisons since x, y are automatically signed
+    - if they were unsigned they would be called `unsigned long int`
+  - we need comparison B.LE but we need to use BL to actually come back afterward
+    - we will B.cond jump to another bit of code that calls the other procedure
+    - we don't have to worry about it with the else case
+  ```arm
+  cat:
+  // the prologue is always the same
+  SUB SP, SP, 8 
+  STR X30, [SP]
+
+  CMP X0, X1
+  B.LT woof       // if x < y goto woof
+  BL bunny        // else call bunny()
+  B out
+
+  woof:
+  BL dog          // call dog()
+
+  out:
+  // as is the epilogue
+  LDR X30, [SP]    
+  ADD SP, SP, 8
+  RET
+  ```
+- another one:
+  ```c
+  add(long int a, long int b){
+    return a + b; 
+  } 
+  void proc(int n){
+    long int arr[n]; 
+    for (int i = 0; i < n; i++ ) { 
+      arr[i] = add(i, i); 
+    }
+    return;
+  }
+  int main() {
+    proc(10);
+  }
+  ```
+  ```arm
+  add:
+  ADD X0, X0, X1 
+  RET
+
+  proc:
+  SUB SP, SP, 0
+  STR X30, [SP]
+  MUL X20, X0, 8
+  SUB SP, SP, X20
+
+  MOV X0, X18       // X18 = n
+  MOV X19, 0        // X19 = i
+  CMP X19, X18      // i, n
+  B.EQ out
+
+  MOV X0, X19       // X0 = i
+  MOV X1, X19       // X1 = i
+  BL add            // add(i,i)
+
+  // etc
+  
+  ```
+
+
+# 10/11 Convention II
+- what if we want more than 8 parameters or more parameters than we have registers?
+  - store the extra parameters in the memory in the stack
+- in printf `%d` prints out the W register, `%ld` prints the entire X register
+- printf will overwrite a lot of registers, so what do we do with the data we need?
+- caller-saved registers: X0-X18
+  - move your data out of these when you call something
+  - won't all be overwritten every time but they all *can* be
+- callee-saved registers: X19-X30
+  - a procedure we call will not overwrite these registers
+  - they might have used them, but it will write the original data back in before it returns
+- we need this to write and use libraries with predictable behavior
+- when moving the stack pointer, we need to know our frame size, i.e. the size of what we're returning:
+  1. X30, return address, 8 bytes
+  2. local variables
+  3. original value of any registers X19 - X29 that you use
+```arm
+proc:
+// we can call this the prologue:
+SUB SP, SP, frame_size  // move stack appropriately
+
+STR X30, [SP, __]       // store return address
+
+STR X19, [SP, __]       // store callee-saved registers
+⋮
+STR X29, [SP, __]
+...
+
+// say we have a BL somewhere in here, then all of this happens correctly and we have no problems
+
+// this is the epilogue:
+LDR X19, [SP, __]       // reload callee-saved registers
+⋮
+LDR X29, [SP, __]
+
+ADD SP, SP, frame_size
+RET
+```
+
+## test review
+- what changes program flow?
+  - RET, CBZ, CBNZ, all `B`ranching instructions
+- what changes condition flags?
+  - CMP, ADDS, SUBS, MULS, ANDS
+- practice problems
+  - in priority order
+- quick check questions from the textbook
+  - include solutions
+- reading quizzes
+- labs
+- HW
+- 
