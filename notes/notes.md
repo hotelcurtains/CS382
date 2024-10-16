@@ -830,4 +830,7 @@ RET
 - reading quizzes
 - labs
 - HW
-- 
+
+# 10/16 recursive functions
+- look at his notes for this i didn't take any
+- recursive function time can vary a lot and it generally much slower than loop functions
