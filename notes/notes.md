@@ -807,7 +807,7 @@ STR X19, [SP, __]       // store callee-saved registers
 STR X29, [SP, __]
 ...
 
-// say we have a BL somewhere in here, then all of this happens correctly and we have no problems
+// say we have a BL somewhere in here, all of this still happens correctly and we have no problems
 
 // this is the epilogue:
 LDR X19, [SP, __]       // reload callee-saved registers
@@ -834,3 +834,48 @@ RET
 # 10/16 recursive functions
 - look at his notes for this i didn't take any
 - recursive function time can vary a lot and it generally much slower than loop functions
+
+# 10/18
+- recall changes in bit values have a rising and falling delay. it's so small that we don't need to care in practice.
+- NOT has a higher priority than binary operators
+- comparing a and b means 
+  - 0 CMP 0 = 1
+  - 0 CMP 1 = 0
+  - 1 CMP 0 = 0
+  - 1 CMP 1 = 1
+  - basically just == check
+- multiplexor takes s, a, b
+  - 2-way multiplexor:
+    ```
+    s a b output
+    0 0 0 0
+    0 0 1 0
+    0 1 0 1
+    0 1 1 1
+    1 0 0 0
+    1 0 1 1
+    1 1 0 0
+    1 1 1 1
+    ```
+  - when s = 0, output = s
+  - when s = 1, output = b
+  - s = control signal
+  - in a larger implementation, s is still one bit which controls whether the entirety of A or B is selected
+  - what if we wanted a 3-way multiplexor?
+    - one multiplexor between a and b with control signal s0 then another between that one's output and c with control signal s1
+  - ![alt text](image-13.png)
+  - amount of control signals needed for N inputs = Tlog_2 N^T
+
+# 10/21 Latches
+- binary adding gives you a result bit s and a carry-out bit cout
+- in a larger circuit, the carry-out is connected to the carry-in for the next adder
+  - at the last one the cout is the FINAL cout
+- combinational logic: ALU
+- sequential logic: registers
+- a latch saves the previous state of the circuit
+- D-latch has a clock C and data D
+  - if the clock is off then Q+ is off and Q- = !Q+
+  - if clock is on, Q+ = D and Q- = !D
+- the more gates you have, the slower the rising/falling edges are
+- in a flip-flop, the clock's rising edge is extended by putting it through a large odd number of NOT gates
+  - during its rising edge, D makes it through to T
