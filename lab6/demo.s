@@ -20,8 +20,8 @@ _uppercase:
 
     SUB X0, X0, 32      // "a" - 32 = "A"
 
-    ADD SP, SP, 8       // move SP back
     LDR X30, [SP]       // load X30
+    ADD SP, SP, 8       // move SP back
     RET	                // return (lower - 32)
 
 
@@ -36,30 +36,30 @@ _toupper:
         and make this a procedure.
 
     */
-    SUB SP, SP, 16          // make room for X30, &str
+    SUB SP, SP, 16          // make room for X30
     STR X30, [SP]           // store X30
-    STR X0, [SP, 8]         // store &str
 
-    // X1 = i
-    // X13 = &str
+    MOV X13, X0             // X13 = &str
+    MOV X1, 0               // X1 = i
+
     // R0 = str[i]
 
     loop:
     LDRB W0, [X13, X1]      // W0 = str[i]
+    CBZ  X0, postloop       // if (numstr[i] == "\0") break;
     
     BL _uppercase           // W0 = upper(str[i])
 
-    STR  X0, [X13, X1]      // store upper(str[i]) into str[i]
+    STRB W0, [X13, X1]      // store upper(str[i]) into str[i]
 
     ADD  X1, X1, 1          // i++
-    CBZ  X0, postloop       // if (numstr[i] = "\0") break;
-    B    loop               // else goto loop;
+    B    loop               //  goto loop;
 
     postloop:
+    MOV X0, X1              // return len(str)
     LDR X30, [SP]           // load X30
-    LDR X0, [SP, 8]         // load &str
     ADD SP, SP, 16          // move SP back
-    RET	                    // return (lower - 32)
+    RET	                    // return upper(str)
 
 _start:
 
@@ -71,13 +71,16 @@ _start:
     */
 
     ADR  X0, str            // X0 = &str
-    BL _toupper             // toupper(str)
+    BL _toupper             // upper(str)
+
+    MOV X1, X0              // X1 = len(str)
+    ADR X0, outstr          // X0 = &outstr
+    ADR X2, str             // X2 = str
+
+
+    //X0 = &outstr, X1 = i, X2 = &str
     BL printf               // printf()
 
-    // swap X0, X1
-    MOV X2, X0
-    MOV X0, X1
-    MOV X1, X2
 
     // exit
     MOV  X0, 0
