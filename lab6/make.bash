@@ -1,4 +1,8 @@
 #!/bin/bash
-aarch64-linux-gnu-as lab6_starter.s -o -g lab6_starter.o
-aarch64-linux-gnu-ld -lc lab6_starter.o
-qemu-aarch64 -L /usr/aarch64-linux-gnu -g 1234 a.out 
+#aarch64-linux-gnu-as demo.s -g -o demo.o
+#aarch64-linux-gnu-ld demo.o
+#qemu-aarch64 -g 1234 a.out
+
+aarch64-linux-gnu-as demo.s -o demo.o
+aarch64-linux-gnu-ld demo.o -lc
+qemu-aarch64 -L /usr/aarch64-linux-gnu/ a.out
