@@ -684,7 +684,7 @@ RET
   - purr is local, not a global variable, so it will be stored in X0 by convention
     - if there were more, they'd be stored on X0-X7 sequentially
   - to call `dog()` we might want to simply `BL dog`
-    - BUT, becuase of convention, it will put its output in X0 and overwrite our value of `purr`
+    - BUT, because of convention, it will put its output in X0 and overwrite our value of `purr`
     - so we'll store `purr` in X1 and *then* `BL dog`
   - then we have to move dog before we can `BL bunny`
   ```arm
