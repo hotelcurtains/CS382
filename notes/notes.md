@@ -879,3 +879,109 @@ RET
 - the more gates you have, the slower the rising/falling edges are
 - in a flip-flop, the clock's rising edge is extended by putting it through a large odd number of NOT gates
   - during its rising edge, D makes it through to T
+  - when we extend it, we only need one clock
+    - every pulse we want all of the data to go through at once
+
+# 10/25 Encoding
+![circuit diagram of the resisters](image-14.png)
+- registers can be written to or read from
+- the write port of a register file uses sequential logic
+- each have EDC
+  - C takes in the clock
+  - D takes in data (from RegDataW)
+    - the data gets brought to all registers, but only one will be opened to receive it
+  - E(nable) = 0 means the register will not update, 1 means it will
+    - takes the output of an AND gate between RegWrite (control signal for if we're writing) and WriteReg (the register to write to)
+      - blue line ⇛ CTRL signal
+- decoder generates 32 bits and only the register to write to will take 1
+  - all others get 
+- e.g. `MOV X7, 40`
+  - WriteReg = 7
+  - RegWrite = 1
+  - RegDataW = 40
+  - decoder sends 0 to all registers' E port except for X7
+  - all registers receive 40 to D but only X7 gets RegWrite & E = 1
+  - so only X7 gets 40 written into it
+- the read port of a register file uses combinational logic
+- ReadReg1 = control signal of 5 bits (log_2 32 for 32 registers)
+- RegData1 takes the data
+- e.g. `ADD X7, X8, X9`
+  - ReadRed1 = 8 ⇛ RegData1 = 100 (per se)
+  - ReadReg2 = 9 ⇛ RegData2 = 200 (per se)
+  - ALU calculates 100 + 200 = 300
+  - we now need to write that into X7
+  - WriteReg = 7
+  - RegWrite = 1
+  - RegData = whatever's in the ALU (it's 300)
+
+## memory
+![the busses of memory](image-15.png)
+- when we work with the memory, the memory address gets sent through the address bus
+- address bus is unidirectional (from elsewhere INTO the memory)
+- data bus is bidirectional
+- control bus lets the memory to know what to do with the data bus
+- assembly gets translated into an opcode with its operands
+![machine code translations for many assembly instructions](image-16.png)
+  - recall that instructions take up 4 bytes of memory, so they are all exactly 32 bits long
+  - we're not considering W registers
+  - since all register names are between 0-32, we only need 5 bits to name them
+    - when all operands are registers, we use set sequences to fill out the remaining 32 bits of the instruction
+  - immediates have weird size limits because of the 32-bit-per-instruction limit
+- when we call labels, we don't have enough room in the instruction (32 bits total) to include the entire address (64 bits)
+  - so we calculate the distance between the PC and the label and store that instead
+  - this is PC-relative offset
+- RET takes no label so its imm is 0
+
+# 10/28
+- we're gonna start using python-like syntax to describe circuits
+- a = 6 ⇛ wire a has a value of 6
+- `R[6]` = data stored in X6
+- `M[a]` = data in memory at address a
+  - size of a is assumed by context
+- `M[R[6]]` = data in memory at address stored in X6
+- R[4] = M[R[6]] = `LDR X4, [X6]`
+- R[6][0:31] = lowest 32 bits of X6
+- one clock cycle = 1 period 
+  - 1 high, one low
+  - one square wave cycle
+- the clock starts sequential circuits
+  - stores data at the rising edge of the clock
+  - the write port of a register file is sequential
+- they start the combinational circuits
+  - responds to input changes anytime
+  - the read port of a register file is combinational
+- single-clock cycle model - each instruction takes a full clock cycle to execute
+  - very inefficient but easy to understand
+- datapath
+  - ![datapath diagram](image-17.png)
+  - we only have one memory but it's split here for visual ease
+  - instruction memory = `.text`
+1. IF
+   1. fetch instruction
+   2. split wires
+2. ID
+   1. read registers
+   2. control unit generates control signals
+3. EXecute - most important
+   1. compute
+   2. determine branching
+4. MEmory access - slowest stage
+5. WB write back
+   1. end of the cycle
+
+![annotated datapath](image-18.png)
+let's look at `ADD X7, X8, X9`
+- in stage 2:
+  - ReadReg1, ReadReg2 = 8, 9
+  - WriteReg = 7
+- in stage 3:
+  - ALU calculates R[8] + R[9]
+- in stage 4:
+  - bypasses the memory
+  - this instruction still technically happens, it just doesn't do anything
+- in stage 5:
+  - R[8] + R[9] gets sent to RegDataW
+  - since WriteReg = 7, R[7] = R[8] + R[9]
+- this has been one clock cycle
+- possible question: given an instruction, find values of all the control signals
+- 
