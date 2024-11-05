@@ -956,10 +956,10 @@ RET
   - ![datapath diagram](image-17.png)
   - we only have one memory but it's split here for visual ease
   - instruction memory = `.text`
-1. IF
+1. IF Instruction Fetching
    1. fetch instruction
    2. split wires
-2. ID
+2. ID Instruction Decoding
    1. read registers
    2. control unit generates control signals
 3. EXecute - most important
@@ -984,4 +984,57 @@ let's look at `ADD X7, X8, X9`
   - since WriteReg = 7, R[7] = R[8] + R[9]
 - this has been one clock cycle
 - possible question: given an instruction, find values of all the control signals
+
+
+# 10/30 Decoding
+brief overview of the 5 stages:
+![alt text](image-19.png)
+
+- control unit takes in the opcode to tell the CPU what to do
+  - rest of the instruction bytes go to register file
+- all control signals are 1 but except ALUop which is 2 bits
+- recall this chart; we are only concerned with these instructions
+![machine code translations for many assembly instructions](image-16.png)
+- decoding stage diagram:
+![decoding](image-20.png)
+- RegWrite
+  - arithmetic and LDR do it
+  - B writes to a non-general register so it doesn't count
+  - BL writes to X30 so it counts
+  - if an instruction writes to a register, the destination register is stored in the last 5 bits
+  - I[4:0] always goes to WriteReg
+- ReadReg2
+  - 5 bits I[9:5] are always a register to be read
+  - B never reads anything so it takes 0s 
+- Reg2Loc tells us where the second register is stored in the instruction
+  - if we're reading a third register (first group), Reg2Loc sends 1 to read from I[20:16] instead.
+  - if there are only 2 registers in the instruction then the second is I[4:0]
+
+# 11/1 Execution
+![the execution step in diagram](image-21.png)
+- ALUsrc tells the ALU what input it's getting
+  - ALUsrc = 0 for the 2-register arithmetic instructions and LDR, STR
+  - ALUsrc = 1 for the 1-register/1-immediate arithmetic instructions
+  - for branching instructions it doesn't matter what ALUsrc is
+- ALU is combinational
+- all ALU operations for relevant instructions:
+![all ALU operations for relevant instructions](image-22.png)
+  - since action has 4 bits, we can support 16 operations
+  - our model is small tho so we don't use all of them
+  - don't memorize this table
+  - know that branch instructions pass an input as an output
+- we calculates nextPC (= PC + 4) in the last stage
+- BrPC = branched PC
+  - used if we're going to somewhere other than PC+4
+- for RET, ALUout = X30
+- PBr = 1 ⇛ PC = ALUout = X30
+  - RET
+- PBr = Br = 0 ⇛ PC  = nextPC = PC + 4
+  - regular program flow
+- PBr = 0, Br = 1 ⇛ BrPC = PC + imm
+  - B instructions
+- cannot read and write to the memory at the same time (one data bus)
+
+# 11/4 Example
+- writing to a register is sequential circuits
 - 
