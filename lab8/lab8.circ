@@ -137,6 +137,14 @@
       <a name="label" val="X3"/>
       <a name="showInTab" val="true"/>
     </comp>
+    <comp lib="8" loc="(419,34)" name="Text">
+      <a name="font" val="Comic Sans MS bold 16"/>
+      <a name="text" val="Daniel Detore, Elliott McKelvey"/>
+    </comp>
+    <comp lib="8" loc="(577,64)" name="Text">
+      <a name="font" val="Comic Sans MS bold 16"/>
+      <a name="text" val="I pledge my honor that I have abided by the Stevens Honor System."/>
+    </comp>
     <wire from="(1050,680)" to="(1050,690)"/>
     <wire from="(1050,690)" to="(1060,690)"/>
     <wire from="(390,330)" to="(410,330)"/>
