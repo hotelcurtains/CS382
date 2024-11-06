@@ -1037,4 +1037,27 @@ brief overview of the 5 stages:
 
 # 11/4 Example
 - writing to a register is sequential circuits
-- 
+
+# 11/6 Pipeline
+- we want to speed up the CPU by starting instructions quicker, rather than waiting for one to finish before starting the next
+- throughput: how fast our model is. measured in billions of instructions per second, GIPS (giga-instructions per second)
+- latency: amount of time to execute one instruction, measured in picoseconds (ps) = 10^-12 seconds
+- writing to a register takes 20ps
+- we have this multiplexer circuit:
+  - ![alt text](image-23.png)
+  - we want to speed it up
+- we'll split it up into 3 parts, the NOT, OR and AND stages
+- now say the instruction in stage 2 is taking too long and stage 1 is trying to move on
+  - the slow process in stage 2 will be overwritten if we don't stop the fast one in stage 1.
+  - to protect both processes we can put a barrier register between them, aka pipeline registers
+    - they are not general purpose registers
+- ![example usage of pipeline registers in MUX circuit](image-24.png)
+  - note one stage takes 120ps as (1/3 of 300 ps) + now we need 20 ps *every stage* to write to the new registers
+- now in 3 cycles we can be working on 3 different instructions, rather than all 3 taking 3 full clock cycles
+- at the rising edge the barriers are lifted (registers write into the next stage/read from the last)
+- this becomes redundant if your stages are really short. for example 3x 5ps stages + 2x 20ps register writing adds way too much time to be helpful
+- stages will usually have wildly different times between them
+  - since they're all controlled by the clock, you need to accommodate the slowest stage
+  - therefore latency = time for longest stage * amount of stages
+- the memory access stage is 1000x slower than stages that only happen in the CPU
+  - due to having to send signals out to the memory
