@@ -1,0 +1,14 @@
+aarch64-linux-gnu-as concat_array.s -g -o demo.o
+aarch64-linux-gnu-as itoascii.s -g -o itoascii.o
+aarch64-linux-gnu-ld demo.o itoascii.o
+qemu-aarch64 -g 1231 a.out
+
+
+aarch64-linux-gnu-as atoi.s -g -o atoi.o
+aarch64-linux-gnu-as atoi_data.s -g -o atoi_data.o
+aarch64-linux-gnu-ld atoi.o atoi_data.o
+qemu-aarch64 -g 1235 a.out
+
+gdb-multiarch --nh -q a.out -ex 'set disassemble-next-line on' \
+-ex 'target remote :1231' \
+-ex 'set solib-search-path /usr/aarch64-linux-gnu-lib/' -ex 'layout regs'

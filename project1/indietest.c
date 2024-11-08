@@ -10,7 +10,7 @@ int main(int argc, char const *argv[]) {
     // Test for task 1.
     //   Output: 1234
     
-    char* s = itoascii(1234);
+    char* s = itoascii(234890);
     puts(s);
 
     // Test for task 2
