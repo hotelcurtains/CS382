@@ -4,33 +4,44 @@
  */
 
 
-//.global concat_array
-.extern itoascii
-.text
-.global _start
-_start:
+.global concat_array
+//.global _start
+//.text
+//_start:
+
 
 // char* concat_array(unsigned long int* arr, unsigned long int len);
 concat_array:
-SUB SP, SP, 8           // make room for X30
-STR X30, [SP]           // store X30
+SUB SP, SP, 48             // make room for X30, X8, X9, X17, X18
+STR X30, [SP]              // store X30
 
-// TODO FOR TESTING ONLY
-ADR X0, test_arr
-MOV X1, 4
+// FOR TESTING ONLY
+//ADR X0, test_array
+//MOV X1, 3
 
 // assume XO = arr[0], X1 = len
 // SAVE ALL OF THESE TO STACK
 MOV X8, 0                  // X8 = output index
 MOV X9, 0                  // X9 = array index
-MOV X10, 32                // X10 = ascii space
-ADR X16, concat_array_outstr // X16 =  &concat_array_outstr[0]
-MOV X17, X0                // X17 = &arr[0] (needs to be preserved through function calls)
-SUB X18, X1, 1             // X18 = max index of arr
+MOV X17, X0                // X17 = &arr[0]
+LSL X18, X1, 3             // X18 = len(arr) * 8 = max byte offset of arr
 
 convertloop:
+   STR X8, [SP, 8]         // save output index
+   STR X9, [SP, 16]        // save array index
+   STR X17, [SP, 32]       // save &arr[0]
+   STR X18, [SP, 40]       // save max index of arr
+
    LDR X0, [X17, X9]       // X0 = &arr[0] + array index
    BL itoascii             // X0 = itoascii(arr[i])
+
+   LDR X8, [SP, 8]         // restore output index
+   LDR X9, [SP, 16]        // restore array index
+   LDR X17, [SP, 32]       // restore &arr[0]
+   LDR X18, [SP, 40]       // restore max index of arr
+   MOV X10, 32             // X10 = ascii space
+   ADR X16, concat_array_outstr // X16 =  &concat_array_outstr[0]
+
 
    // for (char j : itoascii(arr[i])) output += char
    MOV X11, 0              // X11 = interator
@@ -53,10 +64,10 @@ convertloop:
 
 convertend:
 STRB WZR, [X16, X8]        // concat_array_outstr[-1] = "\0"
-MOV X0, X16                // return &concat_array_outstr[0]
+ADR X0, concat_array_outstr // return &concat_array_outstr[0]
 
 LDR X30, [SP]              // load X30
-ADD SP, SP, 8              // move SP back
+ADD SP, SP, 48              // move SP back
 RET	                     // return 
 
 
@@ -65,4 +76,5 @@ RET	                     // return
     /* Put the converted string into concat_array_outstrer,
        and return the address of concat_array_outstr */
     concat_array_outstr:  .fill 1024, 1, 0
-   test_arr: .quad 69, 69, 69, 69
+   //test_array: .quad 10, 200, 30
+
