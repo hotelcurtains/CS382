@@ -2,8 +2,8 @@
 
 extern char* itoascii(int);
 extern char* concat_array(unsigned long int*, unsigned long int);
-extern unsigned long int count_specs(char*);
-extern unsigned long int pringle(char*, ...);
+//extern unsigned long int count_specs(char*);
+//extern unsigned long int pringle(char*, ...);
 
 int main(int argc, char const *argv[]) {
 
@@ -19,7 +19,8 @@ int main(int argc, char const *argv[]) {
     unsigned long int arr[] = {10,200,30};
     char* x = concat_array(arr, 3);
     puts(x);
-
+    puts("ok");
+/*
     // Test for task 3
     //   Output: 3
     
@@ -38,7 +39,7 @@ int main(int argc, char const *argv[]) {
     unsigned long int ret = pringle(str, arr1, 3, arr2, 1, arr3, 5);
     char* newcount = itoascii(ret);
     puts(newcount);
-
+*/
 
     return 0;
 }

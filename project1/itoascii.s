@@ -50,6 +50,7 @@ itoascii:
       B    separate         // else continue
 
    stopsep:
+   STRB WZR, [X11, X10]    // buffer[-1] = "\0"
    ADR X0, buffer          // return address of resulting string
 
    LDR X30, [SP]           // load X30
