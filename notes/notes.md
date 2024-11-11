@@ -1061,3 +1061,59 @@ brief overview of the 5 stages:
   - therefore latency = time for longest stage * amount of stages
 - the memory access stage is 1000x slower than stages that only happen in the CPU
   - due to having to send signals out to the memory
+
+
+# 11/8 CPU Piped
+- to make the CPU piped we need to put registers between each stage of the CPU
+- from now on we will be separating each instruction into its 5 stages: IF, ID, EX, ME, WB
+- each instruction might not do anything in all 5 cycles, but it needs to go through all of them and cost 5 clock cycles
+- we need to start a new instruction on every new clock cycle
+![sequential vs pipeline CPU diagram](image-25.png)
+- data gets written to registers at the rising edge
+- reading can happen anytime
+
+## data hazards
+- simultaneous instructions are overwriting each other's data
+- there are manual and automatic solutions
+- sometimes we can make sure that we never have to go back to the general purpose registers during one instruction so its value can't be overwritten
+- however this isn't always possible if the next instructions needs the last instruction's result
+- so we can put dummy instructions between them so make sure they don't overwrite each other's data AND they can access what they need to
+  - this dummy instruction is called `NOP` for **n**o **op**eration
+  - it does nothing but skip a clock cycle
+- this slows down out throughput BUT it is still faster than sequential
+- at most we will ever need 2 `NOP`s
+
+# 11/11 Hazard
+## data hazard solutions
+1. manual: rearrange instructions
+2. manual: waste clock cycles with NOP
+   - e.g. between two ADD instructions we need 2 NOPs so the first has time to calculate
+   - these rely on the user, which you should never do
+3. we are trying to find an automatic solution
+## automatic solution: stalling
+- we have:
+```arm
+example1:
+MOV X10, 10
+ADD X11, X10, X10
+
+example2:
+MOV X10, 10
+MOX x14, 14
+ADD X11, X10, X10
+
+example3:
+MOV X10, 10
+MOV X14, 14
+MOV X15, X15
+ADD X11, X10, X10
+```
+- only the first of these 2 have data hazards
+- in example 1, ADD depends on the MOV instruction which will not have written into x10 by the time ADD needs that value; this is a dependency
+- same for example 2
+- we want a bit of software to detect these data hazards and fix them
+- our hazard detection unit will take ReadReg1, ReadReg2, and WriteReg from all instructions. it will stall the pipeline by repeating some instruction's stages until its dependencies are done
+  - it also controls the nextPC register
+  - it will insert a "bubble" that stalls a certain part of the pipeline
+- the bubble can only start (i.e. we can only stall before) the EX stage. once it's done we need to finish the instruction.
+- if an instructions gets stalled at the ID stage, then the next one gets stalled at the IF stage. then the next next instruction cannot be fetched until the middle one moves to ID.
