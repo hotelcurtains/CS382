@@ -20,7 +20,7 @@ int main(int argc, char const *argv[]) {
     char* x = concat_array(arr, 3);
     puts(x);
     puts("ok");
-/*
+
     // Test for task 3
     //   Output: 3
     
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]) {
     unsigned long int ret = pringle(str, arr1, 3, arr2, 1, arr3, 5);
     char* newcount = itoascii(ret);
     puts(newcount);
-*/
+
 
     return 0;
 }

@@ -5,9 +5,6 @@
 
 
 .global concat_array
-//.global _start
-//.text
-//_start:
 
 
 // char* concat_array(unsigned long int* arr, unsigned long int len);
@@ -15,12 +12,7 @@ concat_array:
 SUB SP, SP, 48             // make room for X30, X8, X9, X17, X18
 STR X30, [SP]              // store X30
 
-// FOR TESTING ONLY
-//ADR X0, test_array
-//MOV X1, 3
-
 // assume XO = arr[0], X1 = len
-// SAVE ALL OF THESE TO STACK
 MOV X8, 0                  // X8 = output index
 MOV X9, 0                  // X9 = array index
 MOV X17, X0                // X17 = &arr[0]
@@ -77,4 +69,5 @@ RET	                     // return
        and return the address of concat_array_outstr */
     concat_array_outstr:  .fill 1024, 1, 0
    //test_array: .quad 10, 200, 30
+
 

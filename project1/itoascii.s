@@ -7,8 +7,6 @@
 .global itoascii
 
 .text
-
-_start:
 // char* itoascii(unsigned long int number);
 itoascii:
    SUB SP, SP, 8            // make room for X30
@@ -50,12 +48,12 @@ itoascii:
       B    separate         // else continue
 
    stopsep:
-   STRB WZR, [X11, X10]    // buffer[-1] = "\0"
-   ADR X0, buffer          // return address of resulting string
+   STRB WZR, [X11, X10]     // buffer[-1] = "\0"
+   ADR X0, buffer           // return address of resulting string
 
-   LDR X30, [SP]           // load X30
-   ADD SP, SP, 8           // move SP back
-   RET	                  // return 
+   LDR X30, [SP]            // load X30
+   ADD SP, SP, 8            // move SP back
+   RET	                   // return 
 
 
 .data
