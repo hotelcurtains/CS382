@@ -3,19 +3,17 @@ aarch64-linux-gnu-as itoascii.s -g -o itoascii.o
 aarch64-linux-gnu-as count_specs.s -g -o count_specs.o
 aarch64-linux-gnu-as pringle.s -g -o pringle.o
 aarch64-linux-gnu-ld concat_array.o itoascii.o count_specs.o pringle.o
-qemu-aarch64 -g 1234 a.out
+qemu-aarch64 -g 1230 a.out
 
 
 gdb-multiarch --nh -q a.out -ex 'set disassemble-next-line on' \
--ex 'target remote :1234' \
+-ex 'target remote :1230' \
 -ex 'set solib-search-path /usr/aarch64-linux-gnu-lib/' -ex 'layout regs'
 
 
-aarch64-linux-gnu-gcc indietest.c itoascii.s concat_array.s count_specs.s -g
+aarch64-linux-gnu-gcc indietest.c itoascii.s concat_array.s count_specs.s pringle.s -g
 qemu-aarch64 -L /usr/aarch64-linux-gnu/ a.out
 
 
 
-aarch64-linux-gnu-as indietest.s -o indietest.o
-aarch64-linux-gnu-ld indietest.o
-qemu-aarch64 -g 1231 a.out
+
