@@ -68,6 +68,5 @@ RET	                     // return
     /* Put the converted string into concat_array_outstrer,
        and return the address of concat_array_outstr */
     concat_array_outstr:  .fill 1024, 1, 0
-   //test_array: .quad 10, 200, 30
 
 
