@@ -1117,3 +1117,31 @@ ADD X11, X10, X10
   - it will insert a "bubble" that stalls a certain part of the pipeline
 - the bubble can only start (i.e. we can only stall before) the EX stage. once it's done we need to finish the instruction.
 - if an instructions gets stalled at the ID stage, then the next one gets stalled at the IF stage. then the next next instruction cannot be fetched until the middle one moves to ID.
+
+# 11/13 Forwarding
+- for ADD, the solution exists as soon as the EX stage
+- detect if we have current WriteReg == incoming ReadRegister1/2
+  - if we do then we can start the incoming instruction's EX stage one clock cycle early, after stalling on its ID for only one extra cycle instead of 2
+  - ![forwarding chart](image-26.png)
+- can only forward from WB or ME to EX
+- example forwarding pipeline diagram:
+  - ![](image-27.png)
+- cannot forward backward or ahead; must be in the same cycle
+- however: this can never work with only forwarding. the ADD must be stalled at ID for one extra cycle.
+  - ![bad forwarding](image-28.png)
+- data hazards:
+  - manual: rearrange instructions, or add NOP
+  - automatic: forwarding, or stalling + bubbles
+- control hazard: using the wrong instruction, usually due to branching error
+  - CBZ doesn't know if we are branching until EX
+  - so if we put the next 2 instructions in the pipeline and we need to branch, we're cooked
+  - 2 solutions involve changing the hardware, but it sucks and is hard to read
+  - flushing: turn the next 2 instructions into bubbles, so they don't do anything and the correct instruction can start on time
+  - prediction: look at the code and try to predict if we will take the branch
+    - BT: backward taken
+      - jump backward to continue a loop perhaps
+    - FN: forward not taken
+      - jumping forward is usually not done; perhaps at the *end* of a loop
+    - if this is wrong just flush out the other 2 instructions
+    - worst case you're wrong 1% of the time and waste 2 clock cycles here and there, verses 2 for EVERY branch
+  - misprediction rate: # wrong / # predictions
