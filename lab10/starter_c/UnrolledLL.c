@@ -1,21 +1,21 @@
+// Daniel Detore, Elliott McKelvey
+// I pledge my honor that I have abided by the Stevens Honor System.
+
 #include "UnrolledLL.h"
 
 uNode* new_unode(uNode** prev, u_int64_t blksize) {
 	uNode* nnode = (uNode*) malloc(sizeof(uNode*));
 	nnode->next = NULL;
-    nnode-> blksize = blksize;
 
-	nnode->datagrp = (int*) malloc(sizeof(int) * blksize);
+    nnode->datagrp = (int*)(malloc(blksize * sizeof(int)));
+    nnode->blksize = blksize;
 
-	for (u_int64_t i = 0; i < blksize; i++){
-		nnode->datagrp[i] = rand() % 100;
+	for (int i = 0; i < blksize; i++) {
+		nnode->datagrp[i] = rand();
 	}
-    if((*prev) == NULL){
-        *prev = nnode;
-    }
-    else{
-        (*prev)->next = nnode;
-    }
+
+    if ((*prev) == NULL) *prev = nnode;
+    else (*prev)->next = nnode;
 
 	return nnode;
 }
@@ -23,25 +23,17 @@ uNode* new_unode(uNode** prev, u_int64_t blksize) {
 void init_ullist(UnrolledLL* ullist, u_int64_t size, u_int64_t blksize) {
 	ullist->head = NULL;
 	ullist->len = 0;
-    uNode* nnode;
 
-	for(int i = 0; i < (size/blksize); i++) {
-		if(i == 0) {
-            nnode = new_unode(&(ullist->head),blksize);
-        }
-		else{
-            nnode = new_unode(&nnode,blksize);
-        }
-		ullist->len++;
+    uNode* newnode = new_unode(&(ullist->head), blksize);
+
+	for (int i = 1; i < size/blksize; i++) {
+		newnode = new_unode(&(newnode),blksize);
+		(ullist->len)++;
 	}
 }
 
 void iterate_ullist(uNode* uiter) {
 	while (uiter != NULL) {
-        for (int i = 0; i < sizeof(uiter->datagrp)/sizeof(int); i++){
-            int num = uiter->datagrp[i];
-        }
-
 		uiter = uiter->next;
 	}
 }
