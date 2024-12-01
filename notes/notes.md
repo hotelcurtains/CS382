@@ -1145,3 +1145,87 @@ ADD X11, X10, X10
     - if this is wrong just flush out the other 2 instructions
     - worst case you're wrong 1% of the time and waste 2 clock cycles here and there, verses 2 for EVERY branch
   - misprediction rate: # wrong / # predictions
+
+# 11/15 Performance
+- we don't need to predict when we use B. only conditional branching.
+- quick check 3.5: evil misprediction rate question with explanation. will be on the final
+- we can do static prediction and always assume a branch will/will not be taken, but it nearly always has a misprediction rate >0
+- static predictions change based on the type of branch
+  - 1-bit predictor: predict taken/not taken
+    - set the bit to the first outcome, then we keep predicting that outcome until it is wrong. then we toggle and repeat
+    - especially bad if the actual outcomes are T/N/T/N...
+      - it will never predict correctly
+  - 2-bit predictor: takes 2 fails to switch prediction
+    - ![2-bit prediction chart](image-29.png)
+    - still not good
+  - ![outcome vs. predictions](image-30.png)
+- clock period = time per clock cycle
+- clock rate = 1/clock period
+- CPI = (clock) cycles per instruction
+- CPU time = time a program takes using the CPU resources
+  - excluding waiting for user input
+  - I * CPI * clock period = I * CPI / clock rate = CPU time
+- CPI and clock period are immutable. all we can change is amount of instructions
+  - i.e. start code golfing
+  - or rely on compiler
+- there's also weighted average CPI: Σ(k=1 to K)(CPIₖ*Iₖ/I)
+  - CPIₖ = CPI for instruction Iₖ
+  - I still = the amount of instructions
+
+# 11/18 Locality
+- recall the clock cycle needs to be slow enough to compensate for the slowest operation
+- locality: the data we are accessing is likely to be stored close to other data we use
+- when we have a 2d array, it might store in row-major order (the way it looks in c, java, python; each row next to each other) or column-major order (the first element of each row, then the second, etc)
+  - only matters if the matrix gets very large
+  - row-major is traversed by stride-1: a₀, a₁, a₂, etc
+  - column-major is traversed by stride-n, where n = the length of one row: a₀, ... aₙ₋₁, aₙ, ..., aₙ₊₁
+- we can save a lot of memory access time by bringing a chunk of data into the CPU at once
+  - it's fastest to have everything in the registers, but this is not always possible
+  - and it's slow to have everything in our regular ram (DRAM)
+  - so we move anything near anything important into the CPU's cache, the SRAM
+  - we envision out storage heirarchy as such:
+  - ![storage heirarchy](image-31.png)
+    - cheap/expensive = actual money
+- cache hit = data in the cache
+- cache miss = data is not in the cache
+
+# 11/20 Hit or Miss
+- check if the data is in the cache or not
+- if not, you have a cache miss
+- in that case we need to go to the RAM and bring a block of data back
+- we copy that into the cache
+- then we request the data from the cache
+- since we just put it there, we have a cache hit
+- what if the cache is full and we need data that's not there?
+- the cache has S sets (numbered 0 thru S-1)
+- each set has E lines (numbered 0 thru E-1)
+- each line has 
+  - its number in the set
+  - v: stores whether this line is usable or not
+  - tag: leftover address bits; this covers the LINE, as all the data has the same tag
+  - data block: B bytes where we store the actual data
+- cache capacity C = amount of sets S * lines per set E * bytes in each line's data block B
+- direct-mapped cache: 1 line in each set, i.e. E = 1
+  - for more, it's an E-way associative cache
+- possible offset b with B bytes per line = (log₂ B) bits
+- each set needs to contain its own index. amount of bits s needed to store the index = (log₂ S) bits for index S
+- addresses are m bits long, so we use the least-significant b bits as the offset in the cache, then the next s bits to count set index. since we're left with m - b - s = t bits, which gets used as the tag
+- v is 0 by default, we set it to 1 when we store something in it
+- if there is something in the right spot, but it's the wrong data, the tag will be different. this means you still have to go to memory.
+- the memory will be loaded in in blocks of B bytes. no matter where the byte you need falls in that block, we need to load in the whole block
+- with a small cache, it becomes redundant
+- direct-mapped cache diagram:
+  - ![alt text](image-32.png)
+
+# 11/22 Miss Rate
+- two-way set associative cache
+- we add another line to each cache
+- we are using a 4-bit-address RAM
+  - adding a second line means we only need two sets, adn we'll store the same amount of data
+- of the address,
+  - 1 bit represents index (two data segments in each line * 4 lines = 8 data segments)
+  - now only one bit to choose set (two sets * 2 lines * 2 data bytes = 8 bytes)
+  - two bits for tags
+- miss rate = cache misses/cache accesses
+- hit rate = 1 - miss rate
+- 
