@@ -23,19 +23,13 @@ def babyRoot(n):
 
 
     root = n//2 + 1
-    for _ in range(0,35):
-        root = (((n // root) + root) // 2)
+    root = (((n // root) + root) // 2)
+    root = (((n // root) + root) // 2)
+    root = (((n // root) + root) // 2)
+    root = (((n // root) + root) // 2)
 
     
     return root
 
 
 
- 
-for i in range(int(math.pow(2, 64)), int(math.pow(2, 65))):
-    print("\r", i, end="")
-    br = babyRoot(i)
-    real = math.sqrt(i)
-    if ((br > real + 1) or (br < real - 1)):
-        print("\nBroken at", i, "=", math.log2(i))
-        break

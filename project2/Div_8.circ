@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project source="3.8.0" version="1.0">
-  This file is intended to be loaded by Logisim-evolution v3.8.0(https://github.com/logisim-evolution/).
+<project source="3.9.0" version="1.0">
+  This file is intended to be loaded by Logisim-evolution v3.9.0(https://github.com/logisim-evolution/).
 
   <lib desc="#Wiring" name="0">
     <tool name="Splitter">
@@ -72,6 +72,7 @@
     <tool lib="5" name="Hex Digit Display"/>
   </toolbar>
   <circuit name="main">
+    <a name="appearance" val="custom"/>
     <a name="circuit" val="main"/>
     <a name="clabelfont" val="SansSerif plain 12"/>
     <a name="simulationFrequency" val="2.0"/>
@@ -97,7 +98,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(1070,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(1080,320)" name="Splitter">
       <a name="appear" val="right"/>
       <a name="facing" val="south"/>
@@ -119,7 +119,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(1160,910)" name="Ground"/>
     <comp lib="0" loc="(1170,260)" name="Pin">
       <a name="appearance" val="NewPins"/>
       <a name="facing" val="west"/>
@@ -140,7 +139,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(1240,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(1310,800)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="fanout" val="8"/>
@@ -151,7 +149,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(1330,920)" name="Ground"/>
     <comp lib="0" loc="(1350,810)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="facing" val="west"/>
@@ -164,7 +161,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(1410,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(1480,810)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="fanout" val="8"/>
@@ -175,7 +171,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(1500,930)" name="Ground"/>
     <comp lib="0" loc="(1520,820)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="facing" val="west"/>
@@ -188,7 +183,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(1580,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(1700,540)" name="Pin">
       <a name="appearance" val="NewPins"/>
       <a name="facing" val="west"/>
@@ -209,8 +203,9 @@
       <a name="radix" val="10unsigned"/>
       <a name="width" val="8"/>
     </comp>
-    <comp lib="0" loc="(300,740)" name="Pull Resistor">
-      <a name="facing" val="east"/>
+    <comp lib="0" loc="(300,740)" name="Constant">
+      <a name="value" val="0x0"/>
+      <a name="width" val="8"/>
     </comp>
     <comp lib="0" loc="(300,740)" name="Splitter">
       <a name="appear" val="center"/>
@@ -228,7 +223,6 @@
       <a name="label" val="DIV_BY_ZERO_ERROR"/>
       <a name="output" val="true"/>
     </comp>
-    <comp lib="0" loc="(320,860)" name="Ground"/>
     <comp lib="0" loc="(340,750)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="facing" val="west"/>
@@ -241,7 +235,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(390,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(460,750)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="fanout" val="8"/>
@@ -252,7 +245,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(480,870)" name="Ground"/>
     <comp lib="0" loc="(500,760)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="facing" val="west"/>
@@ -265,7 +257,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(560,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(630,760)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="fanout" val="8"/>
@@ -276,7 +267,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(650,880)" name="Ground"/>
     <comp lib="0" loc="(670,770)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="facing" val="west"/>
@@ -289,7 +279,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(730,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(800,770)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="fanout" val="8"/>
@@ -300,7 +289,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(820,890)" name="Ground"/>
     <comp lib="0" loc="(840,780)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="facing" val="west"/>
@@ -313,7 +301,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(900,570)" name="Pull Resistor"/>
     <comp lib="0" loc="(970,780)" name="Splitter">
       <a name="appear" val="center"/>
       <a name="fanout" val="8"/>
@@ -324,7 +311,6 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
     </comp>
-    <comp lib="0" loc="(990,900)" name="Ground"/>
     <comp lib="1" loc="(1110,650)" name="AND Gate">
       <a name="negate0" val="true"/>
       <a name="size" val="30"/>
@@ -396,7 +382,7 @@
     <comp lib="3" loc="(580,590)" name="Subtractor"/>
     <comp lib="3" loc="(750,590)" name="Subtractor"/>
     <comp lib="3" loc="(920,590)" name="Subtractor"/>
-    <comp lib="6" loc="(234,1008)" name="Text">
+    <comp lib="6" loc="(230,1005)" name="Text">
       <a name="font" val="SansSerif plain 19"/>
       <a name="halign" val="left"/>
       <a name="text" val="If Zero, Quotient will contain all 1's. Remainder will be Numerator."/>
@@ -665,7 +651,7 @@
     <comp lib="1" loc="(300,250)" name="NOR Gate">
       <a name="size" val="30"/>
     </comp>
-    <comp lib="6" loc="(257,143)" name="Text">
+    <comp lib="6" loc="(255,140)" name="Text">
       <a name="font" val="SansSerif plain 19"/>
       <a name="text" val="Is Input Zero?"/>
     </comp>
