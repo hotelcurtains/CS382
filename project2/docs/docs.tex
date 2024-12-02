@@ -1,0 +1,201 @@
+\documentclass[12pt, oneside]{memoir}
+\usepackage[firstpageonly=true]{draftwatermark}
+\usepackage{indentfirst}
+\usepackage[charter]{mathdesign}
+\usepackage[T1]{fontenc}
+\usepackage{epigraph}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{calc}
+\usepackage{enumitem}
+\usepackage{float}
+
+\setlength{\beforechapskip}{0em}
+\setlength{\afterchapskip}{2em}
+\setlength{\baselineskip}{1em}
+\setlength{\topskip}{0em}
+
+\setlrmarginsandblock{1in}{1in}{*}
+\setulmarginsandblock{1in}{1in}{*}
+\checkandfixthelayout
+
+\renewcommand{\chaptername}{Section}
+\renewcommand{\afterchapternum}{:\quad}
+
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+
+\definecolor{register}{HTML}{E33318}
+\newcommand{\R}[1]{{\color{register}\texttt{R#1}}}
+
+\definecolor{imm}{HTML}{DA108E}
+\newcommand{\imm}{{\color{imm}\texttt{imm8}}}
+
+\definecolor{instruction}{HTML}{1D8991}
+\newcommand{\instruction}[1]{{\color{instruction}\texttt{#1}}}
+
+\definecolor{header}{HTML}{8A31B9}
+\newcommand{\header}[1]{{\color{header}\texttt{#1}}}
+
+\title{
+    {\HUGE\bfseries HANDv8 and The Sqrter for Dummies}\\
+    {\large\bfseries 1st Edition}\linebreak\linebreak
+    {\Large Understanding My Revolutionary Contribution\\to the Field of Computer Science}\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak\linebreak
+}
+\author{
+    {\Large Daniel Detore}, ddetore@stevens.edu\\
+    CS 382-D\\
+    Professor Shudong Hao\\
+    {I pledge my honor that I have abided by the Stevens Honor System.}
+}
+
+
+
+\begin{document}
+
+\frontmatter
+
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\raggedright
+
+\epigraph{There is no reason for any individual to have a computer in his home.}{\textit{- Ken Olsen}}
+\tableofcontents*
+\newpage
+%\listoffigures
+%\newpage
+%\listoftables
+%\newpage
+
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{1em}
+
+\chapter{Author's Note}
+I am a computer scientist. I am neither an electrical engineer nor a mathematician. Anyone with meaningful knowledge of those fields (including computer science) will, in all likelihood, be vexed and enraged by my decisions herein. Please direct any complaints to your local recycling center. Questions or wellness checks can be sent to my email on the cover page.
+
+This manual is dedicated to my parents, who are alive but would be instantly sent into cardiac arrest if I tried explaining any of this technology to them.
+
+\mainmatter
+\part{What You Need To Know}
+
+\chapter{Programming in HANDv8}
+You get 4 registers and each has 8 bits of storage. We call them \R{0}, \R{1}, \R{2}, and \R{3}. Their values are treated as unsigned because we don't have the budget for signed arithmetic. Put your instructions in a \texttt{.s} file under the \header{.text} header if you plan on also having a \header{.data} segment. Otherwise, the interpreter will assume your file only contains instructions.
+
+These instructions are loosely based on ARMv8 names and syntaxes, but I made them look more uniform.
+\section{Instructions}
+When instructions take multiple registers as parameters, they can be different or the same. All immediates are unsigned and 8 bits long, where 0 is always valid.
+\subsection{Miscellaneous}
+\begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{MOV} \R{w} \imm}]
+    \item[\instruction{END}] Ends the program. The interpreter will ignore any instructions after this instruction. This is not necessary as the program terminates at the end of the \header{.text} section anyway, but it makes you look more professional or something.
+    \item[\instruction{MOV} \R{w} \R{a}] Overwrites the contents of \R{w} with that of \R{a}. This does not effect \R{a}.
+    \item[\instruction{MOV} \R{w} \imm] Overwrites the contents of \R{w} with \imm.
+\end{description}
+\subsection{Arithmetic}
+\begin{description}[labelwidth=\widthof{\bfseries\instruction{DIV} \R{w} \R{a} \imm}]
+    \item[\instruction{ADD} \R{w} \R{a} \R{b}] Writes into \R{w} the sum of the contents of \R{a} and \R{b}.
+    \item[\instruction{ADD} \R{w} \R{a} \imm] Writes into \R{w} the sum of the content of \R{a} and \imm.
+    \item[\instruction{MUL} \R{w} \R{a} \imm] Writes into \R{w} the product of the contents of \R{a} $\times$ \imm.
+    \item[\instruction{DIV} \R{w} \R{a} \R{b}] Writes into \R{w} the integer quotient $\floor{\frac{\text{\R{a}}}{\text{\R{b}}}}$. If $\R{b} = 0$, then $\R{w} = 0$.
+    \item[\instruction{DIV} \R{w} \R{a} \imm] Writes into \R{w} the integer quotient $\floor{\frac{\text{\R{a}}}{\text{\imm}}}$. If $\imm = 0$, then $\R{w} = 0$.
+\end{description}
+\subsection{Memory Access}
+\begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{STR} \R{w} \R{a} \imm}]
+    \item[\instruction{LDR} \R{w} \R{a}] Writes into \R{w} a byte from data memory which is addressed by the content of \R{a}.
+    \item[\instruction{LDR} \R{w} \R{a} \R{b}] Writes into \R{w} a byte from data memory which is addressed by the sum of the contents of $\R{a} + \R{b}$.
+    \item[\instruction{LDR} \R{w} \R{a} \imm] Writes into \R{w} a byte from data memory which is addressed by the sum of the content of $\R{a} + \imm$.
+    
+    \item[\instruction{STR} \R{w} \R{a}] Stores the content of \R{w} into data memory addressed by the contents of \R{a}.
+    \item[\instruction{STR} \R{w} \R{a} \R{b}] Stores the content of \R{w} into data memory addressed by the contents of $\R{a} + \R{b}$.
+    \item[\instruction{STR} \R{w} \R{a} \imm] Stores the content of \R{w} into data memory addressed by the content of $\R{a} + \imm$.
+\end{description}
+
+\section{Data Memory}
+The interpreter will let you declare a \header{.data} header as well, if you want to have some data already stored in memory. If you don't, it won't generate a data memory image file.
+
+You can set one byte of memory as such: 
+\begin{quotation}\texttt{{\color{header}.data}\\
+    {\color{imm}AA} = {\color{imm}BB}\\
+    {\color{imm}a6} = {\color{imm}ff}
+}\end{quotation}
+
+In this case, the value \texttt{{\color{imm}0xBB}} gets written to memory at address \texttt{{\color{imm}0xAA}}. {\bfseries TAKE NOTE} that both values are written in {\bfseries hexidecimal}, whereas immediates in \header{.text} use {\bfseries decimal}.
+
+You can also use this syntax to set a range of values starting at one address:
+
+\begin{quotation}\texttt{\header{.data}\\
+    {\color{imm}0xAA}: {\color{imm}0xNN}, {\color{imm}0xNN}, ...\\
+    {\color{imm}08}: {\color{imm}ff}, {\color{imm}ab}, {\color{imm}00}, {\color{imm}c1}
+}\end{quotation}
+
+In this case, each subsequent byte of data, starting with \texttt{{\color{imm}0xAA}} will contain the following arguments. This means address \texttt{{\color{imm}08}} contains \texttt{{\color{imm}ff}}, address \texttt{{\color{imm}09}} contains \texttt{{\color{imm}ab}}, and so on.
+
+If you like, you can mix and match these syntaxes within \header{.data}.
+\begin{quotation}\texttt{\header{.data}\\
+    {\color{imm}00}: {\color{imm}a0}, {\color{imm}a1}, {\color{imm}a2}, {\color{imm}a3}\\
+    {\color{imm}8} = {\color{imm}1}
+}\end{quotation}
+The above code snippet will have your memory looking as such:
+\begin{table}[H]
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+    address  & 00 & 01 & 02 & 03 & 04 & 05 & 06 & 07 & 08 & ... \\ \hline
+    contents & a0 & a1 & a2 & a3 & 00 & 00 & 00 & 00 & 01 & 00  \\ \hline
+    \end{tabular}
+\end{table}
+
+Just be aware that if you assign multiple values to the same address, the interpreter will only use whichever one you assign last chronologically.
+
+\subsection{Comments}
+The interpreter will ignore anything between the characters \texttt{//} and the end of a line. This works in all sections anywhere in the file.
+
+\chapter{Assembling}
+You've got your instructions and your data. To get it into the Sqrtr, you'll want to use the interpreter. First, get \texttt{interpreter.py} into the same directory as your file. Run it in Powershell or Batch with \texttt{py interpreter.py <yourfile>.s}. You can leave off the \texttt{.s} if you like, but it's good luck to include it.
+
+The interpreter will quit and spit out a broken file if...
+\begin{itemize}
+    \item you use a bad (misspelled or nonexistent) instruction. No matter how bad you want it, the Sqrtr does not have \instruction{SUB}.
+    \item you use an invalid syntax. You cannot multiply by a register. I am deeply sorry.
+    \item you use too many instructions. The instruction memory can only fit 255 instructions. (\instruction{MUL} uses $\imm$ instructions, so be careful with it.) You can mod it to hold more, but it will void your warrantee.
+    \item you forget to separate \header{.data} and \header{.text} sections with their respective headers.
+\end{itemize}
+
+The interpreter will complain but still work if...
+\begin{itemize}
+    \item there are instructions after \instruction{END}.
+    \item you \instruction{ADD} an immediate 0 to a register. The interpreter will optimize its output by excluding this line.
+    \item you \instruction{DIV} or \instruction{MUL} a register by 1. Same deal as adding 0.
+\end{itemize}
+
+If you only have a \header{.text} section, you will only get an instruction memory file. Once you have the Sqrtr open in Logisim-evolution, you can right-click on the \texttt{instructionMemory}, click "Load Image..." and open the instruction file. If you also have a \header{.data} section, follow the same steps with the \texttt{dataMemory}.
+
+\chapter{Running}
+Once you've loaded everything into Logisim-evolution, you can run it however you please. I personally reccomend choosing the poke tool and ticking clock twice for each instruction. You may also use Auto-tick, or you can mash \texttt{Ctrl+T} or \texttt{Ctrl+F9} until the program has completed. Be aware, however, that when the PC reaches the end of the memory, it will overflow and restart the program from the top. 
+
+There's really nothing to do with the data once the program has completed other than look at it with a sense of fatherly/motherly pride, so feel free to do that for as long as you need.
+
+
+
+
+\part{What You (Don't) Want To Know}
+\raggedright
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{1em}
+
+\chapter{What's with the name?}
+My mother gave it to me.
+
+The CPU is called the Sqrtr (i.e. SQuare RooTeR) because it has the capability to approximate the integer square root of a number. I needed some sort of driver program to work toward, and I chose that one. It's stupid because it's only the \emph{integer} square root of a number bounded by [0, 255], but who cares? It's funny.
+
+The language is called HANDv8 because it's based on ARMv8, just as your hand is based on your arm.
+
+\chapter{How does the machine code work?}
+It depends heavily on the command and its specific syntax. Most generally, every instruction gets translated into a 2-byte binary number of this form:
+\begin{equation}
+    abcdeeffgghhhhhh
+\end{equation}
+
+
+\end{document}
