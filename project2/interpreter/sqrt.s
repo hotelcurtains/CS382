@@ -10,42 +10,41 @@
 // return root
 
 .data
-    00 = %%     // command line argument at address 00
+    00 = 40     // input at address 00
+    04: 50 60 70 aa bb cc
 
 .text
-SUB R0 R0 R0    // we put the input at address 0
+DIV R0 R0 0     // we put the input at address 0
 LDR R0 R0       // R0 = input n
 
 DIV R1 R0 2     // R1 = input / 2
-ADD R1 R1 1     // R1 = (input/2) + 1; R1 is now our seed guess (root)
 
 // R0 = input
 // R1 = root
 // R2 = temp
 
-
 // one step of the algorithm: root = (((n / root) + root) / 2)
 DIV R2 R0 R1    // temp = input / root
 ADD R2 R2 R1    // temp += root
-DIV R2 R2 2     // temp /= root
-MOV R2 R1       // root = temp
+DIV R2 R2 2     // temp /= 2
 
-// repeat 3 more times for perfect integer approximation for all n in [0,255]
+// R1 = temp
+// R2 = root
+DIV R1 R0 R2    // temp = input / root
+ADD R1 R1 R2    // temp += root
+DIV R2 R2 2     // temp /= 2
+
+// R1 = root
+// R2 = temp
 DIV R2 R0 R1    // temp = input / root
 ADD R2 R2 R1    // temp += root
-DIV R2 R2 2     // temp /= root
-MOV R2 R1       // root = temp
+DIV R2 R2 2     // temp /= 2
 
-DIV R2 R0 R1    // temp = input / root
-ADD R2 R2 R1    // temp += root
-DIV R2 R2 2     // temp /= root
-MOV R2 R1       // root = temp
 
-DIV R2 R0 R1    // temp = input / root
-ADD R2 R2 R1    // temp += root
-DIV R2 R2 2     // temp /= root
-
-SUB R0 R0 R0    // STR only takes register so we need ro 0 R0 again
+DIV R0 R0 0     // STR only takes register so we need to reset R0 again
 STR R2 R0 1     // store result into address 01
 
+
+
 END
+
