@@ -1,3 +1,6 @@
+% Author: Daniel Detore
+% remind me to stop using this god-forsaken language.
+
 \documentclass[12pt, oneside]{memoir}
 \usepackage[firstpageonly=true]{draftwatermark}
 \usepackage{indentfirst}
@@ -85,24 +88,25 @@ This manual is dedicated to my parents, who are alive but would be instantly sen
 \part{What You Need To Know}
 
 \chapter{Programming in HANDv8}
-You get 4 registers and each has 8 bits of storage. We call them \R{0}, \R{1}, \R{2}, and \R{3}. Their values are treated as unsigned because we don't have the budget for signed arithmetic. Put your instructions in a \texttt{.s} file under the \header{.text} header if you plan on also having a \header{.data} segment. Otherwise, the interpreter will assume your file only contains instructions.
+The Sqrtr 4 registers and each has 8 bits of storage. We call them \R{0}, \R{1}, \R{2}, and \R{3}. Their values are treated as unsigned because we don't have the budget for signed arithmetic. Put your instructions in a \texttt{.s} file under the \header{.text} header if you plan on also having a \header{.data} segment. Otherwise, the interpreter will assume your file only contains instructions. The sections can be in any order. The entire language is case-insensitive but I usually stick to making everything capital except for comments for reasons I don't remember.
 
 \section{Instructions}
-When instructions take multiple registers as parameters, they can be different or the same. All immediates are unsigned and 8 bits long, where 0 is always valid.
-\subsection{Miscellaneous}
-\begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{MOV} \R{w} \imm}]
+When instructions take multiple registers as parameters, they can be different or the same. All immediates are unsigned and 8 bits long, where 0 is always valid. Register numbers and immediates must be written in decimal.
+\begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{DIV} \R{w} \R{a} \imm}]
     \item[\instruction{END}] Ends the program. The interpreter will ignore any instructions after this instruction. This is not necessary as the program terminates at the end of the \header{.text} section anyway, but it makes you look more professional or something.
-    \item[\instruction{MOV} \R{w} \R{a}] Overwrites the contents of \R{w} with that of \R{a}. This does not effect \R{a}.
-    \item[\instruction{MOV} \R{w} \imm] Overwrites the contents of \R{w} with \imm.
 \end{description}
 \subsection{Arithmetic}
 \begin{description}[labelwidth=\widthof{\bfseries\instruction{DIV} \R{w} \R{a} \imm}]
-    \item[\instruction{ADD} \R{w} \R{a} \R{b}] Writes into \R{w} the sum of the contents of \R{a} and \R{b}.
-    \item[\instruction{ADD} \R{w} \R{a} \imm] Writes into \R{w} the sum of the content of \R{a} and \imm.
-    \item[\instruction{MUL} \R{w} \R{a} \imm] Writes into \R{w} the product of the contents of \R{a} $\times$ \imm.
+    \item[\instruction{ADD} \R{w} \R{a} \R{b}] Writes into \R{w} the sum of the contents of $\R{a} + \R{b}$.
+    \item[\instruction{ADD} \R{w} \R{a} \imm] Writes into \R{w} the sum of the content of $\R{a} + \imm$.
     \item[\instruction{DIV} \R{w} \R{a} \R{b}] Writes into \R{w} the integer quotient $\floor{\frac{\text{\R{a}}}{\text{\R{b}}}}$. If $\R{b} = 0$, then $\R{w} = 0$.
     \item[\instruction{DIV} \R{w} \R{a} \imm] Writes into \R{w} the integer quotient $\floor{\frac{\text{\R{a}}}{\text{\imm}}}$. If $\imm = 0$, then $\R{w} = 0$.
 \end{description}
+
+Note that, just like the regular mathematical operations, \instruction{ADD} is commutative while \instruction{DIV} is not. That is, swapping \R{a} and \R{b} in an \instruction{ADD} instruction will produce the same result (though for the interpreter's sake, $\imm$ must always come last). Doing the same for \instruction{DIV} does not necessarily give equal results.
+
+You can emulate \instruction{MOV} \R{w} \R{a} by using \instruction{ADD} \R{w} \R{a} \texttt{{\color{imm}0}}. The Sqrtr does not have \instruction{SUB} or \instruction{MUL} or a built-in emulation of either. The implementation of either is left as a challenge to the reader.
+
 \subsection{Memory Access}
 \begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{STR} \R{w} \R{a} \imm}]
     \item[\instruction{LDR} \R{w} \R{a}] Writes into \R{w} a byte from data memory which is addressed by the content of \R{a}.
@@ -114,29 +118,30 @@ When instructions take multiple registers as parameters, they can be different o
     \item[\instruction{STR} \R{w} \R{a} \imm] Stores the content of \R{w} into data memory addressed by the content of $\R{a} + \imm$.
 \end{description}
 
+
 \section{Data Memory}
-The interpreter will let you declare a \header{.data} header as well, if you want to have some data already stored in memory. If you don't, it won't generate a data memory image file.
+You can include a \header{.data} header in your program if you want to have some data already stored in memory. The Sqrtr's data memory only holds 256 bytes.
 
 You can set one byte of memory as such: 
 \begin{quotation}\texttt{{\color{header}.data}\\
-    {\color{imm}AA} = {\color{imm}BB}\\
+    {\color{imm}0xAA} = {\color{imm}0xBB}\\
     {\color{imm}a6} = {\color{imm}ff}
 }\end{quotation}
 
-In this case, the value \texttt{{\color{imm}0xBB}} gets written to memory at address \texttt{{\color{imm}0xAA}}. {\bfseries TAKE NOTE} that both values are written in {\bfseries hexidecimal}, whereas immediates in \header{.text} use {\bfseries decimal}.
+In this case, the value \texttt{{\color{imm}0xBB}} gets written to memory at address \texttt{{\color{imm}0xAA}}. {\bfseries TAKE NOTE} that both values are written in {\bfseries hexadecimal}, whereas immediates in \header{.text} use {\bfseries decimal}. It works this way to make the data memory easier to debug.
 
 You can also use this syntax to set a range of values starting at one address:
 
 \begin{quotation}\texttt{\header{.data}\\
-    {\color{imm}0xAA}: {\color{imm}0xNN}, {\color{imm}0xNN}, ...\\
-    {\color{imm}08}: {\color{imm}ff}, {\color{imm}ab}, {\color{imm}00}, {\color{imm}c1}
+    {\color{imm}0xAA}: {\color{imm}0xNN} {\color{imm}0xNN} ...\\
+    {\color{imm}08}: {\color{imm}ff} {\color{imm}ab} {\color{imm}00} {\color{imm}c1}
 }\end{quotation}
 
 In this case, each subsequent byte of data, starting with \texttt{{\color{imm}0xAA}} will contain the following arguments. This means address \texttt{{\color{imm}08}} contains \texttt{{\color{imm}ff}}, address \texttt{{\color{imm}09}} contains \texttt{{\color{imm}ab}}, and so on.
 
 If you like, you can mix and match these syntaxes within \header{.data}.
 \begin{quotation}\texttt{\header{.data}\\
-    {\color{imm}00}: {\color{imm}a0}, {\color{imm}a1}, {\color{imm}a2}, {\color{imm}a3}\\
+    {\color{imm}00}: {\color{imm}a0} {\color{imm}a1} {\color{imm}a2} {\color{imm}a3}\\
     {\color{imm}8} = {\color{imm}1}
 }\end{quotation}
 The above code snippet will have your memory looking as such:
@@ -151,26 +156,30 @@ The above code snippet will have your memory looking as such:
 Just be aware that if you assign multiple values to the same address, the interpreter will only use whichever one you assign last chronologically.
 
 \subsection{Comments}
-The interpreter will ignore anything between the characters \texttt{//} and the end of a line. This works in all sections anywhere in the file. Be careful not to comment out anything you actually need.
+The interpreter will ignore anything between the characters \texttt{//} and the end of a line. This works in all sections anywhere in the file. Be careful not to comment out anything you actually need.\linebreak\linebreak
+
+I will not prescribe good coding practices because I don't care. To see how the language is best used, check the included demo files.
 
 \chapter{Assembling}
 \label{s2}
-You've got your instructions and your data. To get it into the Sqrtr, you'll want to use the interpreter. First, get \texttt{interpreter.py} into the same directory as your file. Run it in Powershell or Batch with \texttt{py interpreter.py <yourfile>.s}. You can leave off the \texttt{.s} if you like, but it's good luck to include it.
+You've got your instructions and your data. To get it into the Sqrtr, you'll want to use the interpreter. First, get \texttt{interpreter.py} into the same directory as your file. Run it in Powershell or Batch with \texttt{py interpreter.py <yourfile>.s}. You can leave off the \texttt{.s} if you like, but it's good luck to include it. Note that it will overwrite any existing files with the names it's trying to output to. It will output \texttt{<yourfile>-instructions.txt} and \texttt{<yourfile>-data.txt}.
 
-The interpreter will rage quit and spit out a broken file if...
+The interpreter will rage quit and possibly spit out a broken file if...
 \begin{itemize}
     \item you use a bad (misspelled or nonexistent) instruction. No matter how bad you want it, the Sqrtr does not have \instruction{SUB}.
-    \item you use an invalid syntax. You cannot multiply by a register. I am deeply sorry.
-    \item you use too many instructions. The instruction memory can only fit 256 instructions. (\instruction{MUL} uses $\imm$ instructions, so be careful with it.) You can mod the CPU to hold more, but it will void your warrantee.
+    \item you use an invalid syntax. You cannot load from an immediate address. I am deeply sorry.
+    \item you use too many instructions. The instruction memory can only fit 256 instructions. You can mod the CPU to hold more, but it will void your warrantee.
     \item you forget to separate \header{.data} and \header{.text} sections with their respective headers.
 \end{itemize}
 
-If you only have a \header{.text} section, you will only get an instruction memory file. Once you have the Sqrtr open in Logisim-evolution, you can right-click on the \texttt{instructionMemory}, click "Load Image..." and open the instruction file. If you also have a \header{.data} section, follow the same steps with the \texttt{dataMemory}.
+This is by no means an exhaustive list, so double-check your code and heed the interpreter's warnings before you email me.
+
+Once you have the Sqrtr open in Logisim-evolution, you can right-click on the \texttt{instructionMemory}, click "Load Image..." and open \texttt{<yourfile>-instructions.txt}. If you also have a \header{.data} section, follow the same steps to load \texttt{<yourfile>-data.txt} into the \texttt{dataMemory}.
 
 \chapter{Running}
 Once you've loaded everything into Logisim-evolution, you can run it however you please. I personally reccomend choosing the poke tool and manually ticking the clock twice for each instruction. You may also use Auto-tick, or you can mash \texttt{Ctrl+T} or \texttt{Ctrl+F9} until the program has completed. Be aware, however, that when the PC reaches the end of the memory, it will overflow and restart the program from the top. 
 
-There's really nothing to do with the data once the program has completed other than look at it with a sense of fatherly/motherly pride, so feel free to do that for as long as you need.
+There's really nothing to do with the data once the program has completed other than look at it with a sense of fatherly, motherly, or otherwise parental pride, so feel free to do that for as long as you need. If you think of something else, let me know.
 
 
 
@@ -179,40 +188,35 @@ There's really nothing to do with the data once the program has completed other 
 \raggedright
 \setlength{\parindent}{1.5em}
 \setlength{\parskip}{1em}
-\chapter{What's with the name?}
-
+\chapter{On the construction}
+\section{What's with the name?}
 My mother gave it to me.
 
 The CPU is called the Sqrtr (i.e. SQuare RooTeR) because it has the capability to approximate the integer square root of a number. I needed some sort of driver program to work toward, and I chose that one. It's stupid because it's only the \emph{integer} square root of a number bounded by [0, 255], but who cares? It's funny.
 
-The language is called HANDv8 because it's based on ARMv8, just as your hand is based on your arm. If you're wondering, I took the brackets out of the syntaxes for \instruction{LDR} and \instruction{STR} so that they look just as confusing as all the other instructions.
+The language is called HANDv8 because it's based on ARMv8, just as your hand is based on your arm. If you're wondering, I took the brackets out of the syntaxes for \instruction{LDR} and \instruction{STR} so that they look just as confusing as all the other instructions. I also lost the commas because they were harder to parse through with Python.
 
 \section{Why does HANDv8 have DIV and not SUB?}
 I could only fit one ALUop bit into the machine code. (It'll make more sense in a few pages.) Plus, I'd need to add two more operations if I did add another, which is too much freedom for this project. Aside from the required \instruction{ADD}, I chose division because it is a compulsory operation to do what the Sqrtr set out to do, which is calculate the integer square root of an 8-bit number. You can find my implementation of the algorithm in \texttt{sqrt.s}.
 
-The algorithm I settled on is an adaptation of Heron's method. Instead of using $\epsilon$ and checking for accuracy, I just ran the algorithm a bunch and found that for all 8-bit numbers, running the algorithm 4 times computes the correct integer square root. For the nerds: to find $\floor{\sqrt{n}}$, I use the seed guess of $root = \floor{\frac{n}{2}} + 1$ (adding 1 makes it also work for 1) and repeat this approximation 4 times:
+The algorithm I settled on is an adaptation of Heron's method. Instead of using $\epsilon$ and checking for accuracy, I just ran the algorithm a bunch and found that for all 8-bit numbers, running the algorithm 4 times computes the correct integer square root. For the nerds: to find $\floor{\sqrt{n}}$, I use the seed guess of $root = \floor{\frac{n}{2}}$ and repeat this approximation 4 times:
 \begin{equation*}
     root = \floor{\frac{\floor{\frac{n}{root}} + root}{2}}.
 \end{equation*}
 
-\section{As a mathematician, I'm furious--}
-I guessed. Because you are in a world of my creation, I decided to define the famously undefined operation of dividing by 0 specifically to make you mad. That's a lie, actually. I needed a way to zero a register with one operation, so I defined zero-division to do that. It was very easy to implement the simple conditional of \texttt{if (denominator == 0) then return 0} so I did. I couldn't find any reputable division circuit that did this for me, so I adapted the work of one SDSpivey
+\section{As a mathematician, this vexes me.}
+I guessed. Because we are in a world of my creation, I decided to define the famously undefined operation of dividing by 0. I needed a way to zero a register with one operation, so I defined zero-division to do that. It was very easy to implement the simple conditional of \texttt{if (denominator == 0) then return 0} so I did. I couldn't find any reputable division circuit that did this for me, so I heavily adapted the work of one SDSpivey
 \footnote{You can find his work at \href{https://github.com/logisim-evolution/logisim-evolution/discussions/1660}{https://github.com/logisim-evolution/logisim-evolution/discussions/1660}.} 
 and took out all that nasty electrical engineering stuff.
 
 
-\chapter{How does the interpreter work?}
+\chapter{On the interpreter}
+\section{How does the interpreter work?}
 The interpreter will output Logisim-evolution-ready memory images. I'll be general here because the interpreter is written in Python. Had I written it in a worse language, I'd consider going really in-depth. If you really need to know exactly how it works, you can go and look at it.
 
 In case you forgot, its useage is as such: \texttt{py interpreter.py yourfile.s}
 
-It goes line by line and identifies what you're doing with each instruction. It takes the instruction, its syntax, register numbers, and immediates (if applicable) and translates it into machine code. It outputs at most two files (or one if you only have \header{.text}). Check \hyperref[s2]{Section 2: Assembling} for more information on how to use it.
-
-Some notes:
-\begin{itemize}
-    \item \instruction{MOV} \R{w} \R{a} counts as two instructions. The interpreter turns it into \instruction{DIV} \R{w} \R{w} {\color{imm}0} and \instruction{ADD} \R{w} \R{w} \R{a}. The same thing happens with \instruction{MOV} \R{w} \imm, unless $\imm=0$ in which case the \instruction{ADD} step need not happen.
-    \item \instruction{MUL} \R{w} \R{a} $\imm$ counts as $\imm$ amount of instructions. It is turned into \instruction{DIV} \R{w} \R{w} {\color{imm}0} then \instruction{ADD} \R{w} \R{a} \R{a} repeated $\imm-1$ times. If $\imm = 0$, it is instead replaced with one instruction, \instruction{DIV} \R{w} \R{w} {\color{imm}0}.
-\end{itemize}
+It goes line by line and identifies what you're doing with each instruction. It takes the instruction, its syntax, register numbers, and immediates (if applicable) and translates it into machine code. It outputs at most two files. Check \hyperref[s2]{Section 2: Assembling} for more information on how to use it.
 
 \section{What does the machine code look like?}
 It depends heavily on the instruction and its specific syntax. Every instruction gets translated into a 2-byte binary number of this form:
@@ -221,11 +225,14 @@ It depends heavily on the instruction and its specific syntax. Every instruction
 \end{equation*}
 Let's traverse it in order.
 \begin{enumerate}
-    \item $a$ represents \texttt{ReadToReg}. It is a switch to tell the register file whether it's writing to the register from data memory (1) or from the ALU (0). It replaces \texttt{MemRead} and \texttt{MemToReg} from the textbook since, for our purposes, they are always equal.
+    \item The first 4 bits are the instruction's opcode.
+    \begin{enumerate}
+    \item$a$ represents \texttt{ReadToReg}. It is a switch to tell the register file whether it's writing to the register from data memory (1) or from the ALU (0). It replaces \texttt{MemRead} and \texttt{MemToReg} from the textbook since, for our purposes, they are always equal.
     \item $b$ represents \texttt{MemWrite}. It is a switch to tell the CPU whether this instruction involves writing to data memory (1) or a register (0).
     \item $c$ represents \texttt{ALUop}. This switch is 0 to do addition, which is required by all instructions except \instruction{DIV}, and 1 to do division.
     \item $d$ represents \texttt{UseImm} which is quite self-explanatory. If 1, the ALU receives the immediate which is stored in bits $gghhhhhh$. 
     If 0, the ALU will receive the contents of the register number stored in bits $gg$. While the contents of $hhhhhh$ are irrelevant if $\text{\texttt{UseImm}} = 0$, the interpreter will set them all to 0.
+    \end{enumerate}
     \item $ee$ is \texttt{WriteReg}. For all syntaxes of all instructions except \instruction{STR}, a register is written to. This is the number of that register. For \instruction{STR}, this is the register from which the stored value is read.
     \item $ff$ is \texttt{ReadReg1}. For all syntaxes of all instructions, at least one register must be read from. This is the number of the mandatory one.
     \item $gg$, if and only if $\text{\texttt{UseImm}} = 0$, is \texttt{ReadReg2}. For some instructions, two registers must be read from. This is the number of the second one.
@@ -233,23 +240,17 @@ Let's traverse it in order.
 \end{enumerate}
 For reference, here are some example instructions and their machine code equivalents:
 \begin{tabular}{rl}
-    \instruction{ADD} \R{1} \R{0} \R{3} &= \texttt{0000010011000000}\\
-    \instruction{ADD} \R{2} \R{1} {\color{imm}15} &= \texttt{0001100100001111}\\
-    \instruction{DIV} \R{3} \R{2} \R{1} &= \texttt{0010111001000000}\\
-    \instruction{DIV} \R{0} \R{3} {\color{imm}5} &= \texttt{0011001100000101}\\
-    \instruction{LDR} \R{0} \R{1} &= \texttt{1001000100000000}\\
-    \instruction{LDR} \R{1} \R{2} {\color{imm}4} &= \texttt{1001011000000100}\\
-    \instruction{LDR} \R{2} \R{3} \R{0} &= \texttt{1000101100000000}\\
-    \instruction{STR} \R{0} \R{1} &= \texttt{0101000100000000}\\
-    \instruction{STR} \R{3} \R{2} {\color{imm}8} &= \texttt{0101111000001000}\\
-    \instruction{STR} \R{2} \R{0} \R{1} &= \texttt{0100100001000000}
+    \instruction{ADD} \R{1} \R{0} \R{3} &= \texttt{ 0000010011000000}\\
+    \instruction{ADD} \R{2} \R{1} \texttt{\color{imm}15} &= \texttt{ 0001100100001111}\\
+    \instruction{DIV} \R{3} \R{2} \R{1} &= \texttt{ 0010111001000000}\\
+    \instruction{DIV} \R{0} \R{3} \texttt{\color{imm}5} &= \texttt{ 0011001100000101}\\
+    \instruction{LDR} \R{0} \R{1} &= \texttt{ 1001000100000000}\\
+    \instruction{LDR} \R{1} \R{2} \texttt{\color{imm}4} &= \texttt{ 1001011000000100}\\
+    \instruction{LDR} \R{2} \R{3} \R{0} &= \texttt{ 1000101100000000}\\
+    \instruction{STR} \R{0} \R{1} &= \texttt{ 0101000100000000}\\
+    \instruction{STR} \R{3} \R{2} \texttt{\color{imm}8} &= \texttt{ 0101111000001000}\\
+    \instruction{STR} \R{2} \R{0} \R{1} &= \texttt{ 0100100001000000}
 \end{tabular}
-
-
-
-
-
-
 
 \chapter{Conclusions}
 \epigraph{No one ever said on their deathbed, "Gee, I wish I had spent more time alone with my computer."}{Dani Berry}
