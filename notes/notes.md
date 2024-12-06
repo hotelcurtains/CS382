@@ -1228,4 +1228,13 @@ ADD X11, X10, X10
   - two bits for tags
 - miss rate = cache misses/cache accesses
 - hit rate = 1 - miss rate
-- 
+
+# 12/4
+- amount of bits in address = log₂(size of memory)
+
+cache:
+- C = capacity; in bytes = s \* e \* b
+- S = sets
+- E = lines per set = size of a block
+- B = bytes per line
+- you can fit B/sizeof(integer) integers in one line of the cache

@@ -1,5 +1,3 @@
-str(bin(i))[2:]
-
 - ADD Rdest Ra Rb
   - `ADD R1 R0 R3` = `0000010011000000`
 - ADD Rdest Ra imm8
@@ -21,8 +19,6 @@ str(bin(i))[2:]
   - `STR R0 R1` = `0101000100000000`
 - STR Rsrc Radr imm8
   - `STR R3 R2 8` = `0101111000001000`
-- STR Rsrc Radr Roffset
-  - `STR R2 R0 R1` = `0100100001000000`
 
 - MOV Rdest imm8
   - DIV Rdest Rdest 0
@@ -30,9 +26,6 @@ str(bin(i))[2:]
 - MOV Rdest Rsrc
   - DIV Rdest Rdest 0
   - ADD Rdest Rdest Rsrc
-
-- MUL Rdest imm8
-  - repeat: ADD Rdest Rdest Rdest 
 
 - don't forget comments
 

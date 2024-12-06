@@ -93,7 +93,7 @@ The Sqrtr 4 registers and each has 8 bits of storage. We call them \R{0}, \R{1},
 \section{Instructions}
 When instructions take multiple registers as parameters, they can be different or the same. All immediates are unsigned and 8 bits long, where 0 is always valid. Register numbers and immediates must be written in decimal.
 \begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{DIV} \R{w} \R{a} \imm}]
-    \item[\instruction{END}] Ends the program. The interpreter will ignore any instructions after this instruction. This is not necessary as the program terminates at the end of the \header{.text} section anyway, but it makes you look more professional or something.
+    \item[\instruction{END}] Ends the program. The interpreter will ignore any instructions after this instruction. This is not necessary as the program terminates at the end of the \header{.text} section anyway, but it lets the interpreter finish slightly faster.
 \end{description}
 \subsection{Arithmetic}
 \begin{description}[labelwidth=\widthof{\bfseries\instruction{DIV} \R{w} \R{a} \imm}]
@@ -105,18 +105,21 @@ When instructions take multiple registers as parameters, they can be different o
 
 Note that, just like the regular mathematical operations, \instruction{ADD} is commutative while \instruction{DIV} is not. That is, swapping \R{a} and \R{b} in an \instruction{ADD} instruction will produce the same result (though for the interpreter's sake, $\imm$ must always come last). Doing the same for \instruction{DIV} does not necessarily give equal results.
 
-You can emulate \instruction{MOV} \R{w} \R{a} by using \instruction{ADD} \R{w} \R{a} \texttt{{\color{imm}0}}. The Sqrtr does not have \instruction{SUB} or \instruction{MUL} or a built-in emulation of either. The implementation of either is left as a challenge to the reader.
+You can emulate \instruction{MOV} \R{w} \R{a} by using \instruction{ADD} \R{w} \R{a} \texttt{{\color{imm}0}}. You can also do \instruction{MOV} \R{w} $\imm$ in two instructions with \instruction{DIV} \R{w} \R{w} \texttt{\color{imm}0} then \instruction{ADD} \R{w} \R{a} \imm.
+
+The Sqrtr does not have \instruction{SUB} or \instruction{MUL} or a built-in emulation of either. The implementation of either is left as a challenge to the reader.
 
 \subsection{Memory Access}
-\begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{STR} \R{w} \R{a} \imm}]
+\begin{description}[leftmargin=!,labelwidth=\widthof{\bfseries\instruction{STR} \R{t} \R{a} \imm}]
     \item[\instruction{LDR} \R{w} \R{a}] Writes into \R{w} a byte from data memory which is addressed by the content of \R{a}.
     \item[\instruction{LDR} \R{w} \R{a} \R{b}] Writes into \R{w} a byte from data memory which is addressed by the sum of the contents of $\R{a} + \R{b}$.
     \item[\instruction{LDR} \R{w} \R{a} \imm] Writes into \R{w} a byte from data memory which is addressed by the sum of the content of $\R{a} + \imm$.
     
-    \item[\instruction{STR} \R{w} \R{a}] Stores the content of \R{w} into data memory addressed by the contents of \R{a}.
-    \item[\instruction{STR} \R{w} \R{a} \R{b}] Stores the content of \R{w} into data memory addressed by the contents of $\R{a} + \R{b}$.
-    \item[\instruction{STR} \R{w} \R{a} \imm] Stores the content of \R{w} into data memory addressed by the content of $\R{a} + \imm$.
+    \item[\instruction{STR} \R{t} \R{a}] Stores the content of \R{t} into data memory addressed by the contents of \R{a}.
+    \item[\instruction{STR} \R{t} \R{a} \imm] Stores the content of \R{t} into data memory addressed by the content of $\R{a} + \imm$.
 \end{description}
+
+
 
 
 \section{Data Memory}
@@ -156,7 +159,7 @@ The above code snippet will have your memory looking as such:
 Just be aware that if you assign multiple values to the same address, the interpreter will only use whichever one you assign last chronologically.
 
 \subsection{Comments}
-The interpreter will ignore anything between the characters \texttt{//} and the end of a line. This works in all sections anywhere in the file. Be careful not to comment out anything you actually need.\linebreak\linebreak
+The interpreter will ignore anything between the characters \texttt{//} and the end of a line. This works in all sections anywhere in the file. Be careful not to comment out anything you actually need. There are no multiline comments. If you are doing something complicated enough to require multiline comments you should be using a better language on a mor expensive CPU.
 
 I will not prescribe good coding practices because I don't care. To see how the language is best used, check the included demo files.
 
@@ -211,35 +214,34 @@ and took out all that nasty electrical engineering stuff.
 
 
 \chapter{On the interpreter}
-\section{How does the interpreter work?}
+\section{How does the interpreter work?} 
 The interpreter will output Logisim-evolution-ready memory images. I'll be general here because the interpreter is written in Python. Had I written it in a worse language, I'd consider going really in-depth. If you really need to know exactly how it works, you can go and look at it.
 
 In case you forgot, its useage is as such: \texttt{py interpreter.py yourfile.s}
 
 It goes line by line and identifies what you're doing with each instruction. It takes the instruction, its syntax, register numbers, and immediates (if applicable) and translates it into machine code. It outputs at most two files. Check \hyperref[s2]{Section 2: Assembling} for more information on how to use it.
 
-\section{What does the machine code look like?}
-It depends heavily on the instruction and its specific syntax. Every instruction gets translated into a 2-byte binary number of this form:
+\section{Machine Code}
+The interpreter translate every instruction into a 2-byte binary number of this form:
 \begin{equation*}
-    a,b,c,d,ee,ff,gg,hhhhhh
+    a,b,c,d,ee,ff,gg,hhhhhh.
 \end{equation*}
-Let's traverse it in order.
 \begin{enumerate}
     \item The first 4 bits are the instruction's opcode.
     \begin{enumerate}
-    \item$a$ represents \texttt{ReadToReg}. It is a switch to tell the register file whether it's writing to the register from data memory (1) or from the ALU (0). It replaces \texttt{MemRead} and \texttt{MemToReg} from the textbook since, for our purposes, they are always equal.
+    \item$a$ represents \texttt{ReadToReg}. It is a switch to tell the register file whether it's writing to the register from data memory (1) or from the ALU (0).
     \item $b$ represents \texttt{MemWrite}. It is a switch to tell the CPU whether this instruction involves writing to data memory (1) or a register (0).
     \item $c$ represents \texttt{ALUop}. This switch is 0 to do addition, which is required by all instructions except \instruction{DIV}, and 1 to do division.
     \item $d$ represents \texttt{UseImm} which is quite self-explanatory. If 1, the ALU receives the immediate which is stored in bits $gghhhhhh$. 
     If 0, the ALU will receive the contents of the register number stored in bits $gg$. While the contents of $hhhhhh$ are irrelevant if $\text{\texttt{UseImm}} = 0$, the interpreter will set them all to 0.
     \end{enumerate}
-    \item $ee$ is \texttt{WriteReg}. For all syntaxes of all instructions except \instruction{STR}, a register is written to. This is the number of that register. For \instruction{STR}, this is the register from which the stored value is read.
-    \item $ff$ is \texttt{ReadReg1}. For all syntaxes of all instructions, at least one register must be read from. This is the number of the mandatory one.
-    \item $gg$, if and only if $\text{\texttt{UseImm}} = 0$, is \texttt{ReadReg2}. For some instructions, two registers must be read from. This is the number of the second one.
+    \item $ee$ is \texttt{WriteReg}. For all syntaxes of all instructions except \instruction{STR}, a register is written to. This is the number of that register. For \instruction{STR}, these bits are irrelevant so the interpreter will set them to 0.
+    \item $ff$ is \texttt{ReadReg1}. For all syntaxes of all instructions, at least one register must be read from. I usually call this \R{a}. This is the number of the mandatory one.
+    \item $gg$, if and only if $\text{\texttt{UseImm}} = 0$, is \texttt{ReadReg2}. For some instructions, two registers must be read from. This is the number of the second one. I usually call this \R{b}. For \instruction{STR} \R{t} \R{a} \R{b}, this is \R{t}.
     \item $gghhhhhh$, if and only if $\text{\texttt{UseImm}} = 1$, is the immediate to be used as \imm.
 \end{enumerate}
 For reference, here are some example instructions and their machine code equivalents:
-\begin{tabular}{rl}
+\begin{tabular}{lc}
     \instruction{ADD} \R{1} \R{0} \R{3} &= \texttt{ 0000010011000000}\\
     \instruction{ADD} \R{2} \R{1} \texttt{\color{imm}15} &= \texttt{ 0001100100001111}\\
     \instruction{DIV} \R{3} \R{2} \R{1} &= \texttt{ 0010111001000000}\\
@@ -247,9 +249,9 @@ For reference, here are some example instructions and their machine code equival
     \instruction{LDR} \R{0} \R{1} &= \texttt{ 1001000100000000}\\
     \instruction{LDR} \R{1} \R{2} \texttt{\color{imm}4} &= \texttt{ 1001011000000100}\\
     \instruction{LDR} \R{2} \R{3} \R{0} &= \texttt{ 1000101100000000}\\
-    \instruction{STR} \R{0} \R{1} &= \texttt{ 0101000100000000}\\
-    \instruction{STR} \R{3} \R{2} \texttt{\color{imm}8} &= \texttt{ 0101111000001000}\\
-    \instruction{STR} \R{2} \R{0} \R{1} &= \texttt{ 0100100001000000}
+    \instruction{STR} \R{0} \R{1} &= \texttt{ }\\
+    \instruction{STR} \R{3} \R{2} \texttt{\color{imm}8} &= \texttt{ }\\
+    \instruction{STR} \R{2} \R{0} \R{1} &= \texttt{ }
 \end{tabular}
 
 \chapter{Conclusions}
