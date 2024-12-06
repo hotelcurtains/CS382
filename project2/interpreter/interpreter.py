@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+File name: interpreter.py
+Author: Daniel Detore
+Created: 2024-12-1
+Version: 1.0
+Description: Interprets a HANDv8 program and creates instruction and data memory image files.
+"""
+
 # Author: Daniel Detore
 
 import sys
@@ -77,24 +87,23 @@ def LDR(Rw, Ra, b):
         output += toNbitbin(b, 8)
     return output
 
-def STR(Rw, Ra, b):
-    return "010"+LDR(Rw, Ra, b)[3:]
-
+def STR(Rt, Ra, b):
+    if (b[0].upper() == "R"): 
+        return "STR cannot take Rb. Format: STR Rt Ra [imm8]. Given "+b+"."
+    return "0101"+LDR(Rt, Ra, b)[4:]
 
 #assert(LDR("R0", "R1", "") == "1001000100000000")
 #assert(LDR("R1", "R2", "4") == "1001011000000100")
 #assert(LDR("R2", "R3", "R0") == "1000101100000000")
 
 #assert(STR("R0", "R1", "") == "0101000100000000")
-#assert(STR("R3", "R2", "8") == "0101111000001000")
-#assert(STR("R2", "R0", "R1") == "0100100001000000")
-
-
+#assert(STR("R1", "R2", "4") == "0101011000000100")
+#assert(STR("R2", "R3", "R0") == "0100101100000000")
 
 
 # ACTUAL PROGRAM START
 
-if (len(sys.argv) > 2):
+if (len(sys.argv) == 1 or len(sys.argv) > 2):
     raise Exception("Usage: py "+sys.argv[0]+" <yourfile.s>")
 
 filename = sys.argv[1]
@@ -209,15 +218,19 @@ for i in range(datastart+1, dataend):
     if (line == ""): continue
 
     if ("=" in line):
-        data[int(line[:line.find("=")], 16)] = str(int(line[5:], 16))
+        hexvalue = line[5:]
+        value = int(hexvalue, 16)
+        if (value < 0 or value > 255):
+            raise Exception("Fatal error at line "+str(i+1)+": received value 0x"+hexvalue+" = "+value+"which is out of range (0 to 255 inclusive).")
+        data[int(line[:line.find("=")], 16)] = hexvalue
     elif (":" in line):
         base = int(line[:line.find(":")], 16)
         arguments = line[line.find(":")+1:].split()
         for offset in range(len(arguments)):
             hexvalue = arguments[offset]
             value = int(hexvalue, 16)
-            if (value > 255):
-                raise Exception("Fatal error at line "+str(i+1)+": received value 0x"+hexvalue+" = "+value+"which is too big for one byte.")
+            if (value < 0 or value > 255):
+                raise Exception("Fatal error at line "+str(i+1)+": received value 0x"+hexvalue+" = "+value+"which is out of range (0 to 255 inclusive).")
             data[base + offset] = hexvalue
 
 
