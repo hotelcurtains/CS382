@@ -1238,3 +1238,7 @@ cache:
 - E = lines per set = size of a block
 - B = bytes per line
 - you can fit B/sizeof(integer) integers in one line of the cache
+
+# 12/6
+- forwarding can go from EX or WB to a later instruction's EX
+- 
