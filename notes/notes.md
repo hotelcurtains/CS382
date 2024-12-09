@@ -1239,6 +1239,9 @@ cache:
 - B = bytes per line
 - you can fit B/sizeof(integer) integers in one line of the cache
 
-# 12/6
+# 12/6 Review
 - forwarding can go from EX or WB to a later instruction's EX
-- 
+- you cannot use forwarding if you are loading in data and then immediately accessing it
+  - the only time we need tto bubble/stall is to LDR, LDR, then (per se) ADD that data. we stall the ID stage of ADD for an extra cycle.
+- forwarding always goes directly down, never forward or backward
+
