@@ -8,8 +8,6 @@ Version: 1.0
 Description: Interprets a HANDv8 program and creates instruction and data memory image files.
 """
 
-# Author: Daniel Detore
-
 import sys
 
 def toNbitbin(x, n):
@@ -90,7 +88,13 @@ def LDR(Rw, Ra, b):
 def STR(Rt, Ra, b):
     if (b[0].upper() == "R"): 
         return "STR cannot take Rb. Format: STR Rt Ra [imm8]. Given "+b+"."
-    return "0101"+LDR(Rt, Ra, b)[4:]
+    if (int(b) > 63 or int(b) < 0): 
+        return "imm8 must be between 0 and 63 inclusive. Given "+b+".";
+    output = "010100"
+    output += toNbitbin(Ra[1], 2)
+    output += toNbitbin(Rt[1], 2)
+    output += toNbitbin(b, 6)
+    return output
 
 #assert(LDR("R0", "R1", "") == "1001000100000000")
 #assert(LDR("R1", "R2", "4") == "1001011000000100")
@@ -137,7 +141,7 @@ if (datastart == -1 and textstart == -1):
 elif (datastart != -1 and textstart == -1):
     print("Warning: Did you mean to include no .text?")
 
-# generously estimating endings to conserve runtime
+# generously estimating endings
 textend = 0
 dataend = 0
 if (datastart > textstart): 

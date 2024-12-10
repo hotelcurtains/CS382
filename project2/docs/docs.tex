@@ -113,7 +113,7 @@ When instructions take multiple registers as parameters, they can be different o
     \item[\instruction{LDR} \R{w} \R{a} \R{b}] Writes into \R{w} a byte from data memory which is addressed by the sum of the contents of $\R{a} + \R{b}$.
     \item[\instruction{LDR} \R{w} \R{a} \imm] Writes into \R{w} a byte from data memory which is addressed by the sum of the content of $\R{a} + \imm$.
     \item[\instruction{STR} \R{t} \R{a}] Stores the content of \R{t} into data memory addressed by the contents of \R{a}.
-    \item[\instruction{STR} \R{t} \R{a} \imm] Stores the content of \R{t} into data memory addressed by the content of $\R{a} + \imm$.
+    \item[\instruction{STR} \R{t} \R{a} \texttt{{\color{imm}imm6}}] Stores the content of \R{t} into data memory addressed by the content of $\R{a} + \texttt{{\color{imm}imm6}}$. (The use of \texttt{{\color{imm}imm6}} and not $\imm$ is explained in the Machine Code section.)
 \end{description}
 
 The syntaxes of \instruction{LDR} and \instruction{STR} with no third argument are shorthand for \instruction{LDR} \R{w} \R{a} \texttt{{\color{imm}0}} and \instruction{STR} \R{t} \R{a} \texttt{{\color{imm}0}}. The first argument of \instruction{STR} is called \R{t} rather than \R{w} to signal that you are not writing to the first register, whereas you are doing so in all other instructions.
@@ -184,11 +184,11 @@ The interpreter will ignore anything between the characters \texttt{//} and the 
 \subsection{Why does HANDv8 have DIV and not SUB?}
 I could only fit one ALUop bit into the machine code. (It'll make more sense in a few pages.) Plus, I'd need to add \textit{two} more operations if I did add another, which is too much freedom for this project. Aside from the required \instruction{ADD}, I chose division because it is a compulsory operation to do what the Sqrtr set out to do, which is calculate the integer square root of an 8-bit number. You can find my implementation of the algorithm in \texttt{sqrt.s}.
 
-The algorithm I settled on is an adaptation of Heron's method. Instead of using $\epsilon$ and checking for accuracy, I just ran the algorithm a bunch and found that for all 8-bit numbers, running the algorithm 4 times computes the correct integer square root. For the nerds: to find $\floor{\sqrt{n}}$, I use the seed guess of $root = \floor{\frac{n}{2}}$ and repeat this approximation 4 times:
+The algorithm I settled on is an adaptation of Heron's method. Instead of using $\epsilon$ and checking for accuracy, I just ran the algorithm a bunch and found that for all 8-bit numbers, running the algorithm 4 times computes the correct integer square root. For the nerds: to find $\floor{\sqrt{n}}$, I use the seed guess of $root_0 = \floor{\frac{n}{2}}$ and repeat this approximation 4 times:
 \begin{equation*}
-    root = \floor{\frac{\floor{\frac{n}{root}} + root}{2}}.
+    root_{i+1} = \floor{\frac{\floor{\frac{n}{root_{i}}} + root_{i}}{2}}.
 \end{equation*}
-Since it's quick enough to brute force, you can check that the final $root$ will always be exactly $\floor{\sqrt{n}}$ for all $n \in [0,255]$.
+Since it's quick enough to brute force, you can check that $root_4$ will always be exactly $\floor{\sqrt{n}}$ for all $n \in [0,255]$.
 
 \subsection{As a mathematician, your \instruction{DIV} vexes me.}
 Not a question. Because we are in a world of my creation, I decided to define the famously undefined operation of dividing by 0. I needed a way to zero a register with one operation, so I defined zero-division to do that. It was easy enough to implement the simple conditional of \texttt{if (denominator == 0) then return 0} so I did. I couldn't find any reputable division circuit that did this for me, so I heavily adapted the work of one SDSpivey\footnote{You can find his work at \href{https://github.com/logisim-evolution/logisim-evolution/discussions/1660}{https://github.com/logisim-evolution/logisim-evolution/discussions/1660}.} 
@@ -205,8 +205,8 @@ The interpreter will throw a tantrum and quit if...
     \item you run the interpreter the wrong way. It will remind you of its usage.
     \item you use a bad (misspelled or nonexistent) instruction. It will tell you what the bad instruction is and what line it was on.
     \item you use an invalid syntax. It will tell you what was wrong with it, unless it was so bad it crashes the interpreter entirely.
-    \item you use too many instructions. The instruction memory can only fit 256 instructions. You can mod it to hold more, but it will void your warrantee. You can do as much in \header{.data} as you want because it is handled by the interpreter, not the RAM.
-    \item you use an immediate anywhere that is not in $[0,255]$. Any number outside of this range cannot be represented by 8 bits of unsigned binary or 2 digits of hexadecimal.
+    \item you use too many instructions. The instruction memory can only fit 256 instructions. You can mod it to hold more, but it will void your warranty. You can do as much in \header{.data} as you want because it is handled by the interpreter, not the RAM.
+    \item you use an immediate anywhere that is not in $[0,255]$. Any number outside of this range cannot be represented by 8 bits of unsigned binary or 2 digits of hexadecimal. (For \instruction{STR}, the immediate must be in $0,63$ to fit into 6 bits.)
     \item you forget to separate \header{.data} and \header{.text} sections with their respective headers. This has undefined behavior but will most likely cause one of the above messages.
 \end{itemize}
 
@@ -224,7 +224,9 @@ This is not an exhaustive list, so double-check your code and heed the interpret
 \chapter{Running}
 Once you have the Sqrtr open in Logisim-evolution, you can right-click on the \texttt{instructionMemory}, click "Load Image..." and open \texttt{<yourfile>-instructions.txt}. If you have a nontrivial \header{.data} section, follow the same steps to load \texttt{<yourfile>-data.txt} into the \texttt{dataMemory}.
 
-Once you've loaded everything into Logisim-evolution, you can run it however you please. I personally reccomend choosing the poke tool and manually ticking the clock twice for each instruction. You may also use Auto-tick, or you can mash \texttt{Ctrl+T} or \texttt{Ctrl+F9} until the program has completed. Be aware, however, that when the PC reaches the end of the memory, it will overflow and restart the program from the top. 
+Once you've loaded everything into Logisim-evolution, you can run it however you please. I personally reccomend choosing the poke tool and manually ticking the clock twice for each instruction. You may also use Auto-tick, or you can mash \texttt{Ctrl+T} or \texttt{Ctrl+F9} until the program has completed. When the PC reaches the end of the memory, it will overflow and restart the program from the top. It won't necessarily be the same, because the registers and data memory will already have some data in them from the first run. 
+
+Because the Sqrtr does not actually have the ability to stop the PC after the program finishes, be aware that an empty instruction (which looks like \texttt{0x000} in the instruction memory) is not a \instruction{NOP}. It is equivalent to \instruction{ADD} \R{0} \R{0} \R{0}. (This is because \texttt{RegWrite} and \texttt{MemWrite} are controlled by one bit, so we can't turn both off.) Unless you want to do that 200 times after your program ends, it's best to stop it manually.
 
 There's really nothing to do with the data once the program has completed other than look at it with a sense of fatherly, motherly, or otherwise parental pride, so feel free to do that for as long as you need. If you think of something else, let me know.
 
@@ -239,15 +241,15 @@ To understand \textit{how} the Sqrtr reads it, we must understand what each segm
 \begin{enumerate}
     \item The first 4 bits are the instruction's opcode. Each bit is a switch, so each only needs to be one bit.
     \begin{enumerate}
-        \item$a$ represents \texttt{ReadToReg}. It is a switch to tell the register file whether it's writing to the register from data memory (1) or from the ALU (0).
+        \item$a$ represents \texttt{MemRead}. It is a switch to tell the register file whether it's writing to the register from data memory (1) or from the ALU (0).
         \item $b$ represents \texttt{MemWrite}. It is a switch to tell the CPU whether this instruction involves writing to data memory (1) or a register (0).
         \item $c$ represents \texttt{ALUop}. This switch is 0 to do addition, which is required by all instructions except \instruction{DIV}, and 1 to do division.
         \item $d$ represents \texttt{UseImm}. If 1, the ALU receives the immediate which is stored in bits $gghhhhhh$. If 0, the ALU will receive the contents of the register number stored in bits $gg$. The ALU always receives \texttt{ReadReg1} so there's no switch for it.
     \end{enumerate}
-    \item $ee$ is \texttt{WriteReg}. For all syntaxes of all instructions except \instruction{STR}, a register is written to. This is the number of that register, encoded into binary. It needs 2 bits to hold the labels in $[0,4]$. For \instruction{STR}, this is \R{t}, to signal that \R{t} does not get written to.
+    \item $ee$ is \texttt{WriteReg}. For all syntaxes of all instructions except \instruction{STR}, a register is written to. This is the number of that register, encoded into binary. It needs 2 bits to hold the labels in $[0,4]$. For \instruction{STR}, this is \texttt{00} since it doesn't write to any register.
     \item $ff$ is \texttt{ReadReg1}. For all syntaxes of all instructions, at least one register must be read from. I usually call this \R{a}. This is the number of the mandatory one, encoded into binary. It needs 2 bits to hold the labels in $[0,4]$.
-    \item $gg$, if and only if $\text{\texttt{UseImm}} = 0$, is \texttt{ReadReg2}. For some instructions, two registers must be read from. This is the number of the second one, encoded into binary. It needs 2 bits to hold the labels in $[0,4]$. I usually call this \R{b}.
-    \item $gghhhhhh$, if and only if $\text{\texttt{UseImm}} = 1$, is the immediate to be used as \imm. While the contents of $hhhhhh$ are irrelevant if $\text{\texttt{UseImm}} = 0$, the interpreter will set them all to 0. Of course, this field needs to be 8 bits as to fit a full \imm.
+    \item $gg$, if and only if $\text{\texttt{UseImm}} = 0$, is \texttt{ReadReg2}. For some instructions, two registers must be read from. This is the number of the second one, encoded into binary. It needs 2 bits to hold the labels in $[0,4]$. I usually call this \R{b}. For \instruction{STR}, $gg$ stores the number of \R{t}.
+    \item $gghhhhhh$, if and only if $\text{\texttt{UseImm}} = 1$, is the immediate to be used as \imm. While the contents of $hhhhhh$ are irrelevant if $\text{\texttt{UseImm}} = 0$, the interpreter will set them all to 0. Of course, this field needs to be 8 bits as to fit a full \imm. For \instruction{STR}, only $hhhhhh$ stores an \texttt{{\color{imm}imm6}} as $gg$ is needed for \R{t}.
 \end{enumerate}
 
 More specifically, here is what the opcode and layout looks like for each command and their syntaxes:
@@ -255,7 +257,7 @@ More specifically, here is what the opcode and layout looks like for each comman
 \setlength\tabcolsep{2pt}
 \begin{table}[H]
 \begin{tabular}{l|cccccccc}
-    Instruction & \texttt{ReadToReg} & \texttt{MemWrite} & \texttt{ALUop} & \texttt{UseImm} & \texttt{WriteReg} & \texttt{ReadReg1} & \texttt{ReadReg2} & \texttt{imm}  \\
+    Instruction & \texttt{MemRead} & \texttt{MemWrite} & \texttt{ALUop} & \texttt{UseImm} & \texttt{WriteReg} & \texttt{ReadReg1} & \texttt{ReadReg2} & \texttt{imm}  \\
     \hline
     \instruction{ADD} \R{w} \R{a} \R{b} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0b{\color{register}w}} & \texttt{0b{\color{register}a}} & \texttt{0b{\color{register}b}} & - \\
     \instruction{ADD} \R{w} \R{a} \imm  & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{0b{\color{register}w}} & \texttt{0b{\color{register}a}} & - & \texttt{0b\imm} \\
@@ -263,12 +265,12 @@ More specifically, here is what the opcode and layout looks like for each comman
     \instruction{DIV} \R{w} \R{a} \imm  & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{1} & \texttt{0b{\color{register}w}} & \texttt{0b{\color{register}a}} & - & \texttt{0b\imm} \\
     \instruction{LDR} \R{w} \R{a} \R{b} & \texttt{1} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0b{\color{register}w}} & \texttt{0b{\color{register}a}} & \texttt{0b{\color{register}b}} & - \\
     \instruction{LDR} \R{w} \R{a} \imm  & \texttt{1} & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{0b{\color{register}w}} & \texttt{0b{\color{register}a}} & - & \texttt{0b\imm} \\
-    \instruction{STR} \R{t} \R{a} \imm  & \texttt{0} & \texttt{1} & \texttt{0} & \texttt{1} & \texttt{0b{\color{register}t}} & \texttt{0b{\color{register}a}} & - & \texttt{0b\imm}
+    \instruction{STR} \R{t} \R{a} \texttt{{\color{imm}imm6}}  & \texttt{0} & \texttt{1} & \texttt{0} & \texttt{1} & \texttt{00}                    & \texttt{0b{\color{register}a}} & \texttt{0b{\color{register}t}} & \texttt{0b{\color{imm}imm6}}
 \end{tabular}
-{\small Note: I excluded syntaxes of \instruction{LDR} and \instruction{STR} with no third argument. They are shorthand for their respective $\imm$ syntaxes with $\imm = 0$.}
+{\small Note: I excluded syntaxes of \instruction{LDR} and \instruction{STR} with no third argument. They are shorthand for their respective \texttt{{\color{imm}imm}} syntaxes with $\texttt{{\color{imm}imm}} = 0$.}
 \end{table}
 
-This construction leaves open the possibility of a 4th secret memory interaction when \texttt{ReadToReg} and \texttt{MemWrite} are both 1, but now is not the time to theorize on something like that.
+This construction leaves open the possibility of a 4th secret memory interaction when \texttt{MemRead} and \texttt{MemWrite} are both 1, but now is not the time to theorize on something like that.
 
 The interpreter takes the numbers generated by this scheme, translates them into hexadecimal, and then puts them into a format that Logisim-evolution can read. The Sqrtr then translates it back into decimal and sends each bit (or group of bits) where it needs to go. The datapath is near enough to Figure 3.27 in the textbook (with some simplifications and elaborations) that it would patronize the reader if I explained it at length.
 

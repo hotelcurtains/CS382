@@ -1,4 +1,5 @@
 // Author: Daniel Detore
+// Driver for the Sqrtr to do some sqrting.
 
 
 // algorithm:
