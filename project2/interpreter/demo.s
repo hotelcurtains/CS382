@@ -7,7 +7,7 @@
     0f: 07 08
     0 = ff
     ff = 19
-    aa = 21
+    3f = 21
 
 .text
 // logisim starts with all registers = 0,
@@ -24,6 +24,16 @@
     ADD R1 R1 10        // R1 = 12
     STR R1 R1           // 0c = 12
     STR R3 R1 16        // 1c = 1
+
+    // extra tests for corner cases:
+    DIV R0 R0 0         // R0 = 0
+    LDR R0 R0 63        // R0 = 33
+    ADD R1 R0 0         // R1 = 33
+    DIV R1 R1 10        // R1 = 3
+    ADD R1 R0 221       // R1 = 254
+    STR R1 R1 1         // ff = 254
+    ADD R1 R1 255       // R1 = 253
+
     END
 
     // showing that END works. 

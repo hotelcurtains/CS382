@@ -49,7 +49,7 @@ DIV R1 R1 2     // temp /= 2
 
 
 DIV R0 R0 0     // STR only needs a base register so we need to reset R0 again
-STR R2 R0 1     // store result into address 01
+STR R1 R0 1     // store result into address 01
 // 
 
 

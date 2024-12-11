@@ -97,6 +97,21 @@
       <a name="incoming" val="16"/>
       <a name="spacing" val="2"/>
     </comp>
+    <comp lib="0" loc="(1380,1260)" name="Pin">
+      <a name="appearance" val="classic"/>
+      <a name="output" val="true"/>
+      <a name="width" val="8"/>
+    </comp>
+    <comp lib="0" loc="(1380,1290)" name="Pin">
+      <a name="appearance" val="classic"/>
+      <a name="output" val="true"/>
+      <a name="width" val="8"/>
+    </comp>
+    <comp lib="0" loc="(1380,1330)" name="Pin">
+      <a name="appearance" val="classic"/>
+      <a name="output" val="true"/>
+      <a name="width" val="8"/>
+    </comp>
     <comp lib="0" loc="(1520,380)" name="Splitter">
       <a name="bit1" val="0"/>
       <a name="bit2" val="0"/>
@@ -219,9 +234,6 @@
       <a name="font" val="SansSerif bolditalic 16"/>
       <a name="text" val="MemRead"/>
     </comp>
-    <comp lib="8" loc="(1330,1360)" name="Text">
-      <a name="text" val="ALUout"/>
-    </comp>
     <comp lib="8" loc="(1345,1425)" name="Text">
       <a name="text" val="ReadDataM"/>
     </comp>
@@ -237,7 +249,7 @@
     <comp lib="8" loc="(1415,190)" name="Text">
       <a name="text" val="I pledge my honor that I have abided by the Stevens Honor System."/>
     </comp>
-    <comp lib="8" loc="(1505,536)" name="Text">
+    <comp lib="8" loc="(1505,535)" name="Text">
       <a name="text" val="imm8"/>
     </comp>
     <comp lib="8" loc="(1505,975)" name="Text">
@@ -249,26 +261,26 @@
     <comp lib="8" loc="(1545,1615)" name="Text">
       <a name="text" val="WriteDataM"/>
     </comp>
-    <comp lib="8" loc="(1576,482)" name="Text">
+    <comp lib="8" loc="(1575,480)" name="Text">
       <a name="text" val="imm6"/>
     </comp>
-    <comp lib="8" loc="(1595,676)" name="Text">
+    <comp lib="8" loc="(1595,675)" name="Text">
       <a name="text" val="imm"/>
     </comp>
-    <comp lib="8" loc="(1618,581)" name="Text">
+    <comp lib="8" loc="(1615,580)" name="Text">
       <a name="color" val="#0000ff"/>
       <a name="font" val="SansSerif bolditalic 16"/>
       <a name="text" val="MemWrite"/>
     </comp>
-    <comp lib="8" loc="(1620,1485)" name="Text">
-      <a name="text" val="ALUout"/>
-    </comp>
-    <comp lib="8" loc="(1621,1044)" name="Text">
+    <comp lib="8" loc="(1620,1040)" name="Text">
       <a name="color" val="#0000ff"/>
       <a name="font" val="SansSerif bolditalic 16"/>
       <a name="text" val="UseImm"/>
     </comp>
-    <comp lib="8" loc="(1717,1165)" name="Text">
+    <comp lib="8" loc="(1620,1485)" name="Text">
+      <a name="text" val="ALUout"/>
+    </comp>
+    <comp lib="8" loc="(1715,1165)" name="Text">
       <a name="color" val="#0000ff"/>
       <a name="font" val="SansSerif bolditalic 16"/>
       <a name="text" val="ALUop"/>
@@ -361,13 +373,17 @@
     <wire from="(1370,820)" to="(1370,910)"/>
     <wire from="(1370,820)" to="(1390,820)"/>
     <wire from="(1370,910)" to="(1450,910)"/>
+    <wire from="(1380,1260)" to="(1430,1260)"/>
+    <wire from="(1380,1290)" to="(1560,1290)"/>
+    <wire from="(1380,1330)" to="(1640,1330)"/>
     <wire from="(1390,380)" to="(1390,430)"/>
     <wire from="(1390,430)" to="(1690,430)"/>
     <wire from="(1410,380)" to="(1410,420)"/>
     <wire from="(1410,420)" to="(1680,420)"/>
     <wire from="(1410,820)" to="(1450,820)"/>
-    <wire from="(1430,1180)" to="(1430,1270)"/>
+    <wire from="(1430,1180)" to="(1430,1260)"/>
     <wire from="(1430,1180)" to="(1590,1180)"/>
+    <wire from="(1430,1260)" to="(1430,1270)"/>
     <wire from="(1430,1270)" to="(1590,1270)"/>
     <wire from="(1430,380)" to="(1430,720)"/>
     <wire from="(1430,840)" to="(1430,1180)"/>
@@ -394,6 +410,7 @@
     <wire from="(1560,1070)" to="(1560,1200)"/>
     <wire from="(1560,1200)" to="(1560,1280)"/>
     <wire from="(1560,1200)" to="(1590,1200)"/>
+    <wire from="(1560,1280)" to="(1560,1290)"/>
     <wire from="(1560,1280)" to="(1590,1280)"/>
     <wire from="(1560,610)" to="(1660,610)"/>
     <wire from="(1570,630)" to="(1570,1040)"/>
@@ -406,6 +423,7 @@
     <wire from="(1640,1220)" to="(1680,1220)"/>
     <wire from="(1640,1240)" to="(1640,1270)"/>
     <wire from="(1640,1240)" to="(1680,1240)"/>
+    <wire from="(1640,1270)" to="(1640,1330)"/>
     <wire from="(1660,440)" to="(1660,610)"/>
     <wire from="(1680,420)" to="(1680,1050)"/>
     <wire from="(1690,430)" to="(1690,1210)"/>
